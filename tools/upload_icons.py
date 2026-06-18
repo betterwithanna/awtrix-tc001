@@ -13,11 +13,11 @@ import config  # noqa: E402
 
 ICONS = os.path.join(os.path.dirname(__file__), "icons")
 # Nur die echten Loop-Icons hochladen (keine Test-Kandidaten).
-ICON_NAMES = ["bwa", "ig", "yt", "mail", "eur"]
+ICON_NAMES = ["ig", "yt", "mail", "eur"]
 
 
 def main():
-    for name in [f"{n}.jpg" for n in ICON_NAMES]:
+    for name in [f"{n}.gif" for n in ICON_NAMES]:
         path = os.path.join(ICONS, name)
         if not os.path.exists(path):
             print("fehlt:", name)
@@ -25,7 +25,7 @@ def main():
         with open(path, "rb") as fh:
             resp = requests.post(
                 f"http://{config.AWTRIX_IP}/edit",
-                files={"file": (f"/ICONS/{name}", fh, "image/jpeg")},
+                files={"file": (f"/ICONS/{name}", fh, "image/gif")},
                 timeout=30,
             )
         print(f"{name} -> {resp.status_code}")
