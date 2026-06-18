@@ -38,14 +38,15 @@ DROP_RED = "#FF4136"       # negativer Wert (Rueckgang)
 WHITE = "#FFFFFF"
 
 
-def build_metric_app(text, color=WHITE, icon=None, scroll=True, duration=7, lifetime=2400):
+def build_metric_app(text, color=WHITE, icon=None, scroll=True, duration=7):
     """Baut eine Custom-App fuer EINE Kennzahl (= ein Feld im Loop).
 
     scroll=True laesst laengeren Text laufen; scroll=False zentriert kurzen Text.
-    lifetime 2400 s (40 Min) ueberbrueckt locker den 15-Min-Push-Takt.
+    KEIN lifetime -> die App bleibt dauerhaft sichtbar (ueberbrueckt auch lange
+    Luecken im GitHub-Actions-Cron); die Werte aktualisieren sich bei jedem Push.
     icon = ID/Name eines auf der Uhr vorhandenen 8x8-Icons (optional).
     """
-    app = {"text": str(text), "color": color, "duration": duration, "lifetime": lifetime}
+    app = {"text": str(text), "color": color, "duration": duration}
     if scroll:
         app["scrollSpeed"] = 90
     else:
@@ -62,13 +63,14 @@ def build_revenue_app(revenue, icon=None):
     )
 
 
-def build_combo_app(fragments, icon=None, duration=8, lifetime=2400):
+def build_combo_app(fragments, icon=None, duration=8):
     """Ein Feld mit mehreren FARBIGEN Textsegmenten (z. B. Zahl + Zuwachs).
 
     fragments = Liste von (text, farbe)-Tupeln; Farbe als Hex (mit/ohne '#').
+    KEIN lifetime -> bleibt dauerhaft sichtbar (siehe build_metric_app).
     """
     text = [{"t": t, "c": str(c).lstrip("#")} for (t, c) in fragments]
-    app = {"text": text, "scrollSpeed": 90, "duration": duration, "lifetime": lifetime}
+    app = {"text": text, "scrollSpeed": 90, "duration": duration}
     if icon:
         app["icon"] = icon
     return app

@@ -20,7 +20,7 @@ def test_build_metric_app_scrolls_by_default():
     assert app["color"] == awtrix.IG_PINK
     assert app["scrollSpeed"] == 90
     assert "center" not in app
-    assert app["lifetime"] == 2400
+    assert "lifetime" not in app          # dauerhaft sichtbar, kein Ablauf
 
 
 def test_build_metric_app_centered_when_not_scrolling():
