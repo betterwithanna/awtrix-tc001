@@ -3,7 +3,6 @@
 Muss im selben WLAN wie die Uhr laufen. IP kommt aus der .env (AWTRIX_IP).
 Aufruf:  python tools/upload_icons.py
 """
-import glob
 import os
 import sys
 
@@ -13,15 +12,16 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import config  # noqa: E402
 
 ICONS = os.path.join(os.path.dirname(__file__), "icons")
+# Nur die echten Loop-Icons hochladen (keine Test-Kandidaten).
+ICON_NAMES = ["bwa", "ig", "yt", "mail", "eur"]
 
 
 def main():
-    files = sorted(glob.glob(os.path.join(ICONS, "*.jpg")))
-    if not files:
-        print("Keine Icons in", ICONS)
-        return
-    for path in files:
-        name = os.path.basename(path)
+    for name in [f"{n}.jpg" for n in ICON_NAMES]:
+        path = os.path.join(ICONS, name)
+        if not os.path.exists(path):
+            print("fehlt:", name)
+            continue
         with open(path, "rb") as fh:
             resp = requests.post(
                 f"http://{config.AWTRIX_IP}/edit",

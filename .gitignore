@@ -11,5 +11,8 @@ venv/
 # Logs
 *.log
 
-# Icon-Vorschauen (nur zum Anschauen, nicht noetig fuers Geraet)
+# Icon-Vorschauen + transiente Auswahl-Artefakte
 tools/icons/*_preview.png
+tools/icons/cand_*.jpg
+tools/icons/lam_*
+tools/gallery.json
