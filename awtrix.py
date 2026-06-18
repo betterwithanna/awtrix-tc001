@@ -62,6 +62,18 @@ def build_revenue_app(revenue, icon=None):
     )
 
 
+def build_combo_app(fragments, icon=None, duration=8, lifetime=2400):
+    """Ein Feld mit mehreren FARBIGEN Textsegmenten (z. B. Zahl + Zuwachs).
+
+    fragments = Liste von (text, farbe)-Tupeln; Farbe als Hex (mit/ohne '#').
+    """
+    text = [{"t": t, "c": str(c).lstrip("#")} for (t, c) in fragments]
+    app = {"text": text, "scrollSpeed": 90, "duration": duration, "lifetime": lifetime}
+    if icon:
+        app["icon"] = icon
+    return app
+
+
 # --- Transport --------------------------------------------------------------
 
 def push_http(app_name, payload):

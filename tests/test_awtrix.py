@@ -39,6 +39,15 @@ def test_build_metric_app_without_icon():
     assert "icon" not in app
 
 
+def test_build_combo_app_colored_fragments():
+    app = awtrix.build_combo_app(
+        [("78.428", awtrix.IG_PINK), (" +12", awtrix.GROWTH_GREEN)], icon="ig")
+    assert app["icon"] == "ig"
+    assert app["text"][0] == {"t": "78.428", "c": "E1306C"}   # ohne '#'
+    assert app["text"][1] == {"t": " +12", "c": "2ECC40"}
+    assert app["scrollSpeed"] == 90
+
+
 def test_build_revenue_app(monkeypatch):
     monkeypatch.setattr(awtrix.config, "EUR_SIGN", "EUR")
     app = awtrix.build_revenue_app(1499.7)

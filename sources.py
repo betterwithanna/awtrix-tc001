@@ -123,3 +123,8 @@ def get_follower_delta(current):
 def get_mailing_delta(current):
     """Neue Mailing-Kontakte seit Tagesbeginn."""
     return _daily_delta("mailing", current)
+
+
+def get_youtube_delta(current):
+    """Neue YouTube-Abonnenten seit Tagesbeginn."""
+    return _daily_delta("youtube", current)

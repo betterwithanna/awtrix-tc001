@@ -26,56 +26,69 @@ def setup_logging():
     )
 
 
+def _delta_fragment(delta):
+    """(text, farbe) fuer einen Tageszuwachs ' +N' -- oder None, wenn unbekannt."""
+    if delta is None:
+        return None
+    sign = "+" if delta >= 0 else ""
+    color = awtrix.GROWTH_GREEN if delta >= 0 else awtrix.DROP_RED
+    return (f" {sign}{awtrix.format_number(delta)}", color)
+
+
+def _pct_fragment(pct):
+    """(text, farbe) fuer ' gestern +-X%' -- oder None."""
+    if pct is None:
+        return None
+    color = awtrix.GROWTH_GREEN if pct >= 0 else awtrix.DROP_RED
+    return (f" gestern {pct:+.1f}%".replace(".", ","), color)
+
+
 def main():
     setup_logging()
     log = logging.getLogger("main")
     apps = {}
 
-    # --- Instagram: Follower + Reichweite als ZWEI getrennte Felder ---------
+    # --- Instagram: Follower(+Zuwachs) & Reach(+Vortagsvergleich), je EIN Feld ---
     try:
         stats = instagram.get_stats()
-        apps["igfollow"] = awtrix.build_metric_app(
-            f"Follower {awtrix.format_number(stats.get('followers', 0))}",
-            awtrix.IG_PINK, icon="ig")
-        # Tageszuwachs der Follower seit 0:01 Uhr (gruen; bei Rueckgang rot)
-        delta = sources.get_follower_delta(stats.get("followers", 0))
-        if delta is not None:
-            sign = "+" if delta >= 0 else ""
-            apps["igtoday"] = awtrix.build_metric_app(
-                f"{sign}{awtrix.format_number(delta)} heute",
-                awtrix.GROWTH_GREEN if delta >= 0 else awtrix.DROP_RED)
-        apps["igreach"] = awtrix.build_metric_app(
-            f"Reach {awtrix.format_number(stats.get('reach', 0))}",
-            awtrix.IG_PINK, icon="ig")
-        # Reach letzter kompletter Tag vs Vortag in % (gruen/rot)
-        reach_pct = instagram.get_reach_change_pct()
-        if reach_pct is not None:
-            apps["igreachpd"] = awtrix.build_metric_app(
-                f"gestern {reach_pct:+.1f}%".replace(".", ","),
-                awtrix.GROWTH_GREEN if reach_pct >= 0 else awtrix.DROP_RED)
+        followers = stats.get("followers", 0)
+        reach = stats.get("reach", 0)
+
+        # Follower-Zahl (pink) + Tageszuwachs (gruen) in einem Feld
+        frags = [(awtrix.format_number(followers), awtrix.IG_PINK)]
+        frag = _delta_fragment(sources.get_follower_delta(followers))
+        if frag:
+            frags.append(frag)
+        apps["igfollow"] = awtrix.build_combo_app(frags, icon="ig")
+
+        # Reach (pink) + Vortagsvergleich (gruen/rot) in einem Feld
+        frags = [(f"Reach {awtrix.format_number(reach)}", awtrix.IG_PINK)]
+        frag = _pct_fragment(instagram.get_reach_change_pct())
+        if frag:
+            frags.append(frag)
+        apps["igreach"] = awtrix.build_combo_app(frags, icon="ig")
     except instagram.TokenExpiredError as exc:
         log.error("Instagram-Token abgelaufen (refresh-token-Workflow erneuert ihn): %s", exc)
     except (instagram.InstagramError, RuntimeError) as exc:
         log.error("Instagram-Abruf fehlgeschlagen: %s", exc)
 
-    # --- Mailing (Supabase Kontaktzahl) -------------------------------------
+    # --- Mailing-Zahl (blau) + neue Kontakte heute (gruen) ------------------
     mailing = sources.get_mailing_count()
     if mailing is not None:
-        apps["mailing"] = awtrix.build_metric_app(
-            f"Mailing {awtrix.format_number(mailing)}", awtrix.MAIL_BLUE, icon="mail")
-        # Neue Kontakte seit Tagesbeginn (gruen; bei Rueckgang rot)
-        mdelta = sources.get_mailing_delta(mailing)
-        if mdelta is not None:
-            sign = "+" if mdelta >= 0 else ""
-            apps["mailtoday"] = awtrix.build_metric_app(
-                f"{sign}{awtrix.format_number(mdelta)} heute",
-                awtrix.GROWTH_GREEN if mdelta >= 0 else awtrix.DROP_RED)
+        frags = [(f"Mail {awtrix.format_number(mailing)}", awtrix.MAIL_BLUE)]
+        frag = _delta_fragment(sources.get_mailing_delta(mailing))
+        if frag:
+            frags.append(frag)
+        apps["mailing"] = awtrix.build_combo_app(frags, icon="mail")
 
-    # --- YouTube (Abonnenten) -----------------------------------------------
+    # --- YouTube-Abos (rot) + neue Abos heute (gruen) -----------------------
     yt = sources.get_youtube_subscribers()
     if yt is not None:
-        apps["youtube"] = awtrix.build_metric_app(
-            f"YouTube {awtrix.format_number(yt)}", awtrix.YT_RED, icon="yt")
+        frags = [(f"YouTube {awtrix.format_number(yt)}", awtrix.YT_RED)]
+        frag = _delta_fragment(sources.get_youtube_delta(yt))
+        if frag:
+            frags.append(frag)
+        apps["youtube"] = awtrix.build_combo_app(frags, icon="yt")
 
     # --- Einnahmen Vortag (EUR, aus dem Supabase-Spiegel) -------------------
     rev = sources.get_revenue_yesterday()
