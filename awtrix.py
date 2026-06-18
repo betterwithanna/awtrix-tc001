@@ -26,31 +26,38 @@ def format_number(value):
     return f"{int(round(value)):,}".replace(",", ".")
 
 
-def build_instagram_app(stats):
-    """Baut die ``insta``-App: Follower-Zahl + Reichweite in Instagram-Pink."""
-    followers = format_number(stats.get("followers", 0))
-    reach = format_number(stats.get("reach", 0))
-    app = {
-        "text": f"{followers}  R {reach}",
-        "color": "#E1306C",            # Instagram-Pink
-        "scrollSpeed": 90,
-        "duration": 8,
-        "lifetime": 1800,              # verschwindet, wenn 30 Min kein Update kommt
-    }
-    if config.IG_ICON:
-        app["icon"] = config.IG_ICON
+# --- Markenfarben -----------------------------------------------------------
+IG_PINK = "#E1306C"        # Instagram
+YT_RED = "#FF0033"         # YouTube
+SPOTIFY_GREEN = "#1DB954"  # Spotify
+MAIL_BLUE = "#4AA3FF"      # Mailing/Newsletter
+HOME_LIME = "#A6E22E"      # Homepage (Marken-Lime)
+REVENUE_GREEN = "#39FF14"  # Einnahmen
+WHITE = "#FFFFFF"
+
+
+def build_metric_app(text, color=WHITE, icon=None, scroll=True, duration=7, lifetime=2400):
+    """Baut eine Custom-App fuer EINE Kennzahl (= ein Feld im Loop).
+
+    scroll=True laesst laengeren Text laufen; scroll=False zentriert kurzen Text.
+    lifetime 2400 s (40 Min) ueberbrueckt locker den 15-Min-Push-Takt.
+    icon = ID/Name eines auf der Uhr vorhandenen 8x8-Icons (optional).
+    """
+    app = {"text": str(text), "color": color, "duration": duration, "lifetime": lifetime}
+    if scroll:
+        app["scrollSpeed"] = 90
+    else:
+        app["center"] = True
+    if icon:
+        app["icon"] = icon
     return app
 
 
-def build_revenue_app(revenue):
-    """Baut die ``revenue``-App (Einnahmen). Bewusst schon vorbereitet -- noch ungenutzt."""
-    return {
-        "text": f"{format_number(revenue)} {config.EUR_SIGN}",
-        "color": "#39FF14",            # Gruen
-        "center": True,
-        "duration": 8,
-        "lifetime": 1800,
-    }
+def build_revenue_app(revenue, icon=None):
+    """Einnahmen-App (gruen). ``revenue`` = Betrag in EUR (z. B. Vortag)."""
+    return build_metric_app(
+        f"{format_number(revenue)} {config.EUR_SIGN}", REVENUE_GREEN, icon=icon, scroll=False
+    )
 
 
 # --- Transport --------------------------------------------------------------

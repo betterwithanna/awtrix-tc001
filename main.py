@@ -13,6 +13,7 @@ import logging
 import sys
 
 import awtrix
+import config
 import instagram
 
 
@@ -31,11 +32,20 @@ def main():
     try:
         stats = instagram.get_stats()
 
-        apps = {"insta": awtrix.build_instagram_app(stats)}
-        # --- Einnahmen folgen spaeter ---------------------------------------
-        # Sobald die Quelle steht, hier ergaenzen:
-        #   apps["revenue"] = awtrix.build_revenue_app(get_revenue())
-        # build_revenue_app() ist in awtrix.py bereits vorbereitet.
+        ig_icon = config.IG_ICON or None
+        apps = {
+            # Instagram: Follower + Reichweite als ZWEI getrennte Felder.
+            "igfollow": awtrix.build_metric_app(
+                f"Follower {awtrix.format_number(stats.get('followers', 0))}",
+                awtrix.IG_PINK, icon=ig_icon),
+            "igreach": awtrix.build_metric_app(
+                f"Reach {awtrix.format_number(stats.get('reach', 0))}",
+                awtrix.IG_PINK, icon=ig_icon),
+        }
+        # --- Weitere Kennzahlen folgen (eigene Felder) ----------------------
+        # YouTube-Abos, Spotify-Follower, Mailing, Homepage, Einnahmen(Vortag).
+        # Jeweils Datenquelle anbinden und z. B.:
+        #   apps["revenue"] = awtrix.build_revenue_app(get_revenue_yesterday())
 
         awtrix.push(apps)
     except instagram.TokenExpiredError as exc:

@@ -14,29 +14,28 @@ def test_format_number_rounds_floats():
     assert awtrix.format_number(42.2) == "42"
 
 
-def test_build_instagram_app():
-    app = awtrix.build_instagram_app({"followers": 12345, "reach": 6789})
-    assert app["color"] == "#E1306C"          # Instagram-Pink
-    assert "12.345" in app["text"]            # Follower, mit Tausenderpunkt
-    assert "6.789" in app["text"]             # Reichweite
-    assert app["duration"] == 8
-    assert app["lifetime"] == 1800
+def test_build_metric_app_scrolls_by_default():
+    app = awtrix.build_metric_app("Follower 12.345", awtrix.IG_PINK)
+    assert app["text"] == "Follower 12.345"
+    assert app["color"] == awtrix.IG_PINK
+    assert app["scrollSpeed"] == 90
+    assert "center" not in app
+    assert app["lifetime"] == 2400
 
 
-def test_build_instagram_app_handles_missing_keys():
-    app = awtrix.build_instagram_app({})
-    assert "0" in app["text"]
+def test_build_metric_app_centered_when_not_scrolling():
+    app = awtrix.build_metric_app("99", awtrix.WHITE, scroll=False)
+    assert app["center"] is True
+    assert "scrollSpeed" not in app
 
 
-def test_build_instagram_app_adds_icon(monkeypatch):
-    monkeypatch.setattr(awtrix.config, "IG_ICON", "1234")
-    app = awtrix.build_instagram_app({"followers": 1, "reach": 2})
+def test_build_metric_app_adds_icon():
+    app = awtrix.build_metric_app("1", awtrix.WHITE, icon="1234")
     assert app["icon"] == "1234"
 
 
-def test_build_instagram_app_without_icon(monkeypatch):
-    monkeypatch.setattr(awtrix.config, "IG_ICON", "")
-    app = awtrix.build_instagram_app({"followers": 1, "reach": 2})
+def test_build_metric_app_without_icon():
+    app = awtrix.build_metric_app("1", awtrix.WHITE)
     assert "icon" not in app
 
 
@@ -46,7 +45,7 @@ def test_build_revenue_app(monkeypatch):
     assert "1.500" in app["text"]             # gerundet + Tausenderpunkt
     assert "EUR" in app["text"]
     assert app["center"] is True
-    assert app["color"] == "#39FF14"
+    assert app["color"] == awtrix.REVENUE_GREEN
 
 
 def test_push_rejects_unknown_mode(monkeypatch):
