@@ -100,6 +100,16 @@ Diesen anschließend als `IG_TOKEN` in `.env` bzw. im GitHub-Secret `IG_TOKEN` e
 - `IG_AUTH=instagram`: Verlängern (ohne Argument) braucht **nur den Token** — kein App-Secret.
 - `IG_AUTH=facebook` **oder** Short→Long-Tausch: braucht `FB_APP_ID`/`FB_APP_SECRET`.
 
+### Automatisch (GitHub Actions) — wartungsfrei
+Der Workflow `.github/workflows/refresh-token.yml` erneuert den Token **monatlich**
+selbst und schreibt ihn zurück ins Secret `IG_TOKEN`. Einmalig nötig:
+1. GitHub → **Settings → Developer settings → Fine-grained personal access tokens** →
+   neues Token, **Repository access** = nur `awtrix-tc001`, **Permissions →
+   Secrets = Read and write**.
+2. Dieses Token im Repo als Secret **`GH_PAT`** hinterlegen.
+
+Danach läuft die Erneuerung vollautomatisch (manuell testbar via *Run workflow*).
+
 ---
 
 ## 4. Deployment

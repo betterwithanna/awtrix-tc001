@@ -1,0 +1,44 @@
+name: Refresh Instagram Token
+
+# Erneuert den langlebigen Instagram-Token (gilt ~60 Tage) automatisch einmal
+# im Monat und schreibt den neuen Wert zurueck ins Secret IG_TOKEN.
+# So bleibt das Dashboard dauerhaft wartungsfrei.
+#
+# Voraussetzung (einmalig): ein Secret GH_PAT mit einem GitHub-Token, das
+# "Secrets: Read and write" auf DIESES Repo darf (siehe README).
+
+on:
+  schedule:
+    - cron: "0 4 1 * *"        # am 1. jedes Monats, 04:00 UTC (klar < 60 Tage)
+  workflow_dispatch: {}          # manueller Start zum Testen
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Token erneuern und Secret aktualisieren
+        env:
+          IG_AUTH: instagram
+          IG_API_VERSION: v21.0
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}      # PAT mit Secrets-Schreibrecht
+        run: |
+          set -euo pipefail
+          NEW_TOKEN="$(python refresh_token.py | tail -n 1)"
+          echo "::add-mask::$NEW_TOKEN"
+          if [ -z "$NEW_TOKEN" ]; then
+            echo "Kein Token erhalten -- Abbruch." >&2
+            exit 1
+          fi
+          printf '%s' "$NEW_TOKEN" | gh secret set IG_TOKEN --repo "$GITHUB_REPOSITORY"
+          echo "IG_TOKEN-Secret aktualisiert."
