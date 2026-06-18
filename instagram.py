@@ -93,10 +93,11 @@ def get_reach():
 
 
 def get_reach_change_pct():
-    """Reach-Veraenderung des letzten VOLLSTAENDIGEN Tages ggue. dem Vortag (in %).
+    """Live-Abweichung der HEUTIGEN Reichweite gegenueber GESTERN (in %).
 
-    Holt den Tagesverlauf (Zeitreihe), klammert den heutigen (noch laufenden) Tag
-    aus und vergleicht die beiden davorliegenden kompletten Tage. None bei zu wenig Daten.
+    Vergleicht den heutigen (noch laufenden) Tageswert direkt mit gestern.
+    Hinweis: morgens stark negativ, da heute erst begonnen hat -- so gewuenscht.
+    None bei zu wenig Daten.
     """
     now = int(time.time())
     try:
@@ -112,13 +113,12 @@ def get_reach_change_pct():
     if not rows:
         return None
     values = [v.get("value", 0) for v in rows[0].get("values", [])]
-    if len(values) < 3:          # brauchen heute + 2 komplette Vortage
+    if len(values) < 2:
         return None
-    last_complete = values[-2]   # vorletzter Eintrag (letzter = heute, unvollstaendig)
-    prev_day = values[-3]
-    if not prev_day:
+    today, yesterday = values[-1], values[-2]
+    if not yesterday:
         return None
-    return round((last_complete - prev_day) / prev_day * 100, 1)
+    return round((today - yesterday) / yesterday * 100, 1)
 
 
 def get_stats():

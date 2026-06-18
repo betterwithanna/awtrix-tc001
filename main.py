@@ -36,11 +36,11 @@ def _delta_fragment(delta):
 
 
 def _pct_fragment(pct):
-    """(text, farbe) fuer ' gestern +-X%' -- oder None."""
+    """(text, farbe) fuer die Live-Abweichung heute vs gestern ' +-X%' -- oder None."""
     if pct is None:
         return None
     color = awtrix.GROWTH_GREEN if pct >= 0 else awtrix.DROP_RED
-    return (f" gestern {pct:+.1f}%".replace(".", ","), color)
+    return (f" {round(pct):+d}%", color)
 
 
 def main():

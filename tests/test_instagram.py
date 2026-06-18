@@ -68,13 +68,13 @@ def test_base_url_switch(monkeypatch):
 
 
 def test_reach_change_pct(monkeypatch):
-    # values: [..., prev_day=200, last_complete=110, today=50] -> (110-200)/200 = -45%
+    # values: [..., yesterday=100, today=120] -> (120-100)/100 = +20%
     payload = {"data": [{"values": [
-        {"value": 100}, {"value": 200}, {"value": 110}, {"value": 50}]}]}
+        {"value": 300}, {"value": 100}, {"value": 120}]}]}
     _mock_get(monkeypatch, FakeResponse(200, payload))
-    assert instagram.get_reach_change_pct() == -45.0
+    assert instagram.get_reach_change_pct() == 20.0
 
 
 def test_reach_change_pct_insufficient_data(monkeypatch):
-    _mock_get(monkeypatch, FakeResponse(200, {"data": [{"values": [{"value": 1}, {"value": 2}]}]}))
+    _mock_get(monkeypatch, FakeResponse(200, {"data": [{"values": [{"value": 5}]}]}))
     assert instagram.get_reach_change_pct() is None
