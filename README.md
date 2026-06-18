@@ -168,6 +168,16 @@ YouTube `yt`, Mailing `mail` — und werden in `main.py` per Dateiname referenzi
 - Alternativ in der Uhr unter **Icons** ein [LaMetric-Icon](https://developer.lametric.com/icons)
   per ID laden und den Namen in `main.py` setzen.
 
+### Native Apps ausblenden (Temperatur/Luftfeuchte/Akku/Datum)
+Per Settings abschalten — **wirkt erst nach einem Reboot** der Uhr:
+```bash
+curl -X POST http://<IP>/api/settings -H "Content-Type: application/json" \
+     -d '{"TEMP":false,"HUM":false,"BAT":false,"DAT":false,"TIM":true}'
+curl -X POST http://<IP>/api/reboot
+```
+Es bleibt nur die native Uhrzeit (`TIM`) + die Custom-Apps. Geräte-lokal: nach
+einem Neuflash erneut setzen.
+
 ---
 
 ## 6. Tests

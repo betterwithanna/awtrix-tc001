@@ -29,8 +29,8 @@ def setup_logging():
 def main():
     setup_logging()
     log = logging.getLogger("main")
-    # Marken-Kachel (Logo-Blatt + Schriftzug) als erstes Feld im Loop.
-    apps = {"brand": awtrix.build_metric_app("Better With Anna", awtrix.HOME_LIME, icon="bwa")}
+    # Marken-Kachel: NUR das Logo-Blatt (kein Schriftzug), kurzer Brand-Flash.
+    apps = {"brand": {"icon": "bwa", "duration": 4, "lifetime": 2400}}
 
     # --- Instagram: Follower + Reichweite als ZWEI getrennte Felder ---------
     try:
