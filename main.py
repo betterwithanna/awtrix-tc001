@@ -93,7 +93,8 @@ def main():
     # --- Einnahmen Vortag (EUR, aus dem Supabase-Spiegel) -------------------
     rev = sources.get_revenue_yesterday()
     if rev is not None:
-        apps["revenue"] = awtrix.build_revenue_app(rev, icon="eur")
+        # Kein Icon -- Text "X EUR" ist eindeutig genug.
+        apps["revenue"] = awtrix.build_revenue_app(rev)
 
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")
