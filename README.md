@@ -162,7 +162,10 @@ Die gebrandeten 8×8-Icons liegen unter `tools/icons/` — Logo-Blatt `bwa`, Ins
 YouTube `yt`, Mailing `mail` — und werden in `main.py` per Dateiname referenziert
 (`icon="ig"` usw.).
 
-- **Neu generieren:** `python tools/make_icon.py` (Logo-Blatt) bzw. `python tools/make_glyphs.py`.
+- **Neu generieren:** `python tools/make_icon.py` (Logo-Blatt) bzw. `python tools/make_glyphs.py` (Mail/€).
+- **Marken-Icons (Instagram/YouTube)** stammen aus der LaMetric-Datenbank (IG `3741`, YouTube `280`):
+  `python tools/fetch_lametric.py ig=3741 yt=280` lädt + skaliert auf 8×8. IDs suchen mit
+  `python tools/find_icon.py instagram youtube` (nutzt die `_icon_thumb.png`-URL; die `.gif`-Variante ist tot).
 - **Auf die Uhr laden** (im selben WLAN): `python tools/upload_icons.py` → landet in `/ICONS/`.
 - Icons sind **geräte-lokal**: nach einem Neuflash der Uhr einmal neu hochladen.
 - Alternativ in der Uhr unter **Icons** ein [LaMetric-Icon](https://developer.lametric.com/icons)
