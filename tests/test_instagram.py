@@ -65,3 +65,16 @@ def test_base_url_switch(monkeypatch):
 
     monkeypatch.setattr(instagram.config, "IG_AUTH", "instagram")
     assert instagram._base_url() == "https://graph.instagram.com/v21.0/999"
+
+
+def test_reach_change_pct(monkeypatch):
+    # values: [..., prev_day=200, last_complete=110, today=50] -> (110-200)/200 = -45%
+    payload = {"data": [{"values": [
+        {"value": 100}, {"value": 200}, {"value": 110}, {"value": 50}]}]}
+    _mock_get(monkeypatch, FakeResponse(200, payload))
+    assert instagram.get_reach_change_pct() == -45.0
+
+
+def test_reach_change_pct_insufficient_data(monkeypatch):
+    _mock_get(monkeypatch, FakeResponse(200, {"data": [{"values": [{"value": 1}, {"value": 2}]}]}))
+    assert instagram.get_reach_change_pct() is None

@@ -47,6 +47,12 @@ def main():
         apps["igreach"] = awtrix.build_metric_app(
             f"Reach {awtrix.format_number(stats.get('reach', 0))}",
             awtrix.IG_PINK, icon="ig")
+        # Reach letzter kompletter Tag vs Vortag in % (gruen/rot)
+        reach_pct = instagram.get_reach_change_pct()
+        if reach_pct is not None:
+            apps["igreachpd"] = awtrix.build_metric_app(
+                f"gestern {reach_pct:+.1f}%".replace(".", ","),
+                awtrix.GROWTH_GREEN if reach_pct >= 0 else awtrix.DROP_RED)
     except instagram.TokenExpiredError as exc:
         log.error("Instagram-Token abgelaufen (refresh-token-Workflow erneuert ihn): %s", exc)
     except (instagram.InstagramError, RuntimeError) as exc:

@@ -10,6 +10,7 @@ Unterstuetzt beide offiziellen Wege ueber den Konfig-Schalter ``IG_AUTH``:
 Liefert ``get_stats()`` -> ``{"followers": int, "reach": int}``.
 """
 import logging
+import time
 
 import requests
 
@@ -89,6 +90,35 @@ def get_reach():
     if isinstance(total, dict):
         return int(total.get("value", 0) or 0)
     return 0
+
+
+def get_reach_change_pct():
+    """Reach-Veraenderung des letzten VOLLSTAENDIGEN Tages ggue. dem Vortag (in %).
+
+    Holt den Tagesverlauf (Zeitreihe), klammert den heutigen (noch laufenden) Tag
+    aus und vergleicht die beiden davorliegenden kompletten Tage. None bei zu wenig Daten.
+    """
+    now = int(time.time())
+    try:
+        data = _request(f"{_base_url()}/insights", {
+            "metric": "reach", "period": "day",
+            "since": now - 6 * 86400, "until": now,
+        })
+    except InstagramError as exc:
+        log.warning("Reach-Verlauf nicht abrufbar: %s", exc)
+        return None
+
+    rows = data.get("data", [])
+    if not rows:
+        return None
+    values = [v.get("value", 0) for v in rows[0].get("values", [])]
+    if len(values) < 3:          # brauchen heute + 2 komplette Vortage
+        return None
+    last_complete = values[-2]   # vorletzter Eintrag (letzter = heute, unvollstaendig)
+    prev_day = values[-3]
+    if not prev_day:
+        return None
+    return round((last_complete - prev_day) / prev_day * 100, 1)
 
 
 def get_stats():
