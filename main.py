@@ -84,7 +84,7 @@ def main():
     # --- YouTube-Abos (rot) + neue Abos heute (gruen) -----------------------
     yt = sources.get_youtube_subscribers()
     if yt is not None:
-        frags = [(f"YouTube {awtrix.format_number(yt)}", awtrix.YT_RED)]
+        frags = [(awtrix.format_number(yt), awtrix.YT_RED)]
         frag = _delta_fragment(sources.get_youtube_delta(yt))
         if frag:
             frags.append(frag)
