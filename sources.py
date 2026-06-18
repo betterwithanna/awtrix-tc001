@@ -84,3 +84,31 @@ def get_revenue_yesterday():
     except (requests.RequestException, ValueError, TypeError) as exc:
         log.warning("Einnahmen-Abruf (Supabase) fehlgeschlagen: %s", exc)
         return None
+
+
+def get_follower_delta(current):
+    """Follower-Zuwachs seit Tagesbeginn (Wiener Zeit) via Supabase-RPC.
+
+    Der Server merkt sich den Startwert des Tages und liefert (aktuell - Start).
+    Braucht den Schreib-Token (REVENUE_TOKEN). None, wenn nicht konfiguriert/Fehler.
+    """
+    if not (config.SUPABASE_URL and config.SUPABASE_KEY and config.REVENUE_TOKEN):
+        return None
+    url = f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_follower_delta"
+    try:
+        resp = requests.post(
+            url,
+            headers={
+                "apikey": config.SUPABASE_KEY,
+                "Authorization": f"Bearer {config.SUPABASE_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={"p_current": int(current), "p_token": config.REVENUE_TOKEN},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        value = resp.json()
+        return int(value) if value is not None else None
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        log.warning("Follower-Zuwachs (Supabase) fehlgeschlagen: %s", exc)
+        return None

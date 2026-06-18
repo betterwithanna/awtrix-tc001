@@ -53,4 +53,6 @@ jobs:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          # Schreib-Token fuer die Tages-Kennzahlen (Follower-Zuwachs etc.):
+          REVENUE_TOKEN: ${{ secrets.REVENUE_TOKEN }}
         run: python main.py

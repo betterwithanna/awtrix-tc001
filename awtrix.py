@@ -33,6 +33,8 @@ SPOTIFY_GREEN = "#1DB954"  # Spotify
 MAIL_BLUE = "#4AA3FF"      # Mailing/Newsletter
 HOME_LIME = "#A6E22E"      # Homepage (Marken-Lime)
 REVENUE_GREEN = "#39FF14"  # Einnahmen
+GROWTH_GREEN = "#2ECC40"   # Tageszuwachs (z. B. Follower heute)
+DROP_RED = "#FF4136"       # negativer Wert (Rueckgang)
 WHITE = "#FFFFFF"
 
 

@@ -37,6 +37,13 @@ def main():
         apps["igfollow"] = awtrix.build_metric_app(
             f"Follower {awtrix.format_number(stats.get('followers', 0))}",
             awtrix.IG_PINK, icon="ig")
+        # Tageszuwachs der Follower seit 0:01 Uhr (gruen; bei Rueckgang rot)
+        delta = sources.get_follower_delta(stats.get("followers", 0))
+        if delta is not None:
+            sign = "+" if delta >= 0 else ""
+            apps["igtoday"] = awtrix.build_metric_app(
+                f"{sign}{awtrix.format_number(delta)} heute",
+                awtrix.GROWTH_GREEN if delta >= 0 else awtrix.DROP_RED)
         apps["igreach"] = awtrix.build_metric_app(
             f"Reach {awtrix.format_number(stats.get('reach', 0))}",
             awtrix.IG_PINK, icon="ig")

@@ -79,3 +79,18 @@ def test_revenue_null_returns_none(monkeypatch):
     monkeypatch.setattr(sources.config, "SUPABASE_KEY", "k")
     monkeypatch.setattr(sources.requests, "post", lambda *a, **k: FakeResponse(200, None))
     assert sources.get_revenue_yesterday() is None
+
+
+def test_follower_delta_none_without_token(monkeypatch):
+    monkeypatch.setattr(sources.config, "SUPABASE_URL", "https://x.supabase.co")
+    monkeypatch.setattr(sources.config, "SUPABASE_KEY", "k")
+    monkeypatch.setattr(sources.config, "REVENUE_TOKEN", None)
+    assert sources.get_follower_delta(100) is None
+
+
+def test_follower_delta_returns_value(monkeypatch):
+    monkeypatch.setattr(sources.config, "SUPABASE_URL", "https://x.supabase.co")
+    monkeypatch.setattr(sources.config, "SUPABASE_KEY", "k")
+    monkeypatch.setattr(sources.config, "REVENUE_TOKEN", "t")
+    monkeypatch.setattr(sources.requests, "post", lambda *a, **k: FakeResponse(200, 12))
+    assert sources.get_follower_delta(100) == 12
