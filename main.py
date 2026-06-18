@@ -52,7 +52,13 @@ def main():
         apps["mailing"] = awtrix.build_metric_app(
             f"Mailing {awtrix.format_number(mailing)}", awtrix.MAIL_BLUE)
 
-    # --- YouTube / Spotify / Einnahmen(Vortag) folgen hier (eigene Felder) --
+    # --- YouTube (Abonnenten) -----------------------------------------------
+    yt = sources.get_youtube_subscribers()
+    if yt is not None:
+        apps["youtube"] = awtrix.build_metric_app(
+            f"YouTube {awtrix.format_number(yt)}", awtrix.YT_RED)
+
+    # --- Spotify / Einnahmen(Vortag) folgen hier (eigene Felder) ------------
 
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")

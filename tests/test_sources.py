@@ -37,3 +37,25 @@ def test_mailing_swallows_errors(monkeypatch):
 
     monkeypatch.setattr(sources.requests, "post", boom)
     assert sources.get_mailing_count() is None
+
+
+def test_youtube_none_without_config(monkeypatch):
+    monkeypatch.setattr(sources.config, "YT_API_KEY", None)
+    monkeypatch.setattr(sources.config, "YT_CHANNEL_ID", None)
+    assert sources.get_youtube_subscribers() is None
+
+
+def test_youtube_returns_subscribers(monkeypatch):
+    monkeypatch.setattr(sources.config, "YT_API_KEY", "k")
+    monkeypatch.setattr(sources.config, "YT_CHANNEL_ID", "UC123")
+    payload = {"items": [{"statistics": {"subscriberCount": "56", "hiddenSubscriberCount": False}}]}
+    monkeypatch.setattr(sources.requests, "get", lambda *a, **k: FakeResponse(200, payload))
+    assert sources.get_youtube_subscribers() == 56
+
+
+def test_youtube_hidden_count_returns_none(monkeypatch):
+    monkeypatch.setattr(sources.config, "YT_API_KEY", "k")
+    monkeypatch.setattr(sources.config, "YT_CHANNEL_ID", "UC123")
+    payload = {"items": [{"statistics": {"hiddenSubscriberCount": True}}]}
+    monkeypatch.setattr(sources.requests, "get", lambda *a, **k: FakeResponse(200, payload))
+    assert sources.get_youtube_subscribers() is None

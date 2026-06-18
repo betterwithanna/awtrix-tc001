@@ -76,6 +76,10 @@ IG_ICON = _get("IG_ICON", "")          # ID/Name eines hochgeladenen 8x8-Icons (
 SUPABASE_URL = _get("SUPABASE_URL")
 SUPABASE_KEY = _get("SUPABASE_KEY")
 
+# YouTube Data API v3 (Abonnenten). Key geheim halten (Quota), Channel-ID ist oeffentlich.
+YT_API_KEY = _get("YT_API_KEY")
+YT_CHANNEL_ID = _get("YT_CHANNEL_ID")
+
 
 def require(*names):
     """Stellt sicher, dass die genannten Pflichtfelder gesetzt sind.

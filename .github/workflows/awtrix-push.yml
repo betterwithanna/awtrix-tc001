@@ -46,8 +46,11 @@ jobs:
           # Mailing (Supabase) -- Publishable Key ist oeffentlich-sicher:
           SUPABASE_URL: https://yayfjzetdpofpcoklwrr.supabase.co
           SUPABASE_KEY: sb_publishable_5LSC86Vn81iJG17-eYLZkQ_mab2MtVp
+          # YouTube -- Channel-ID ist oeffentlich, Key kommt aus Secret:
+          YT_CHANNEL_ID: UCPYugblWsGTrr1F2jp7wzqQ
           # Geheimnisse aus den Repository-Secrets:
           PREFIX: ${{ secrets.MQTT_PREFIX }}
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
         run: python main.py

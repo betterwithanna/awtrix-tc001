@@ -34,3 +34,26 @@ def get_mailing_count():
     except (requests.RequestException, ValueError, TypeError) as exc:
         log.warning("Mailing-Abruf (Supabase) fehlgeschlagen: %s", exc)
         return None
+
+
+def get_youtube_subscribers():
+    """Abonnentenzahl des YouTube-Kanals (Data API v3, oeffentliche Statistik)."""
+    if not (config.YT_API_KEY and config.YT_CHANNEL_ID):
+        return None
+    try:
+        resp = requests.get(
+            "https://www.googleapis.com/youtube/v3/channels",
+            params={"part": "statistics", "id": config.YT_CHANNEL_ID, "key": config.YT_API_KEY},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        items = resp.json().get("items", [])
+        if not items:
+            return None
+        stats = items[0].get("statistics", {})
+        if stats.get("hiddenSubscriberCount"):
+            return None
+        return int(stats.get("subscriberCount", 0))
+    except (requests.RequestException, ValueError, TypeError, KeyError) as exc:
+        log.warning("YouTube-Abruf fehlgeschlagen: %s", exc)
+        return None
