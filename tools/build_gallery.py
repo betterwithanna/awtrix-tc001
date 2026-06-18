@@ -11,9 +11,8 @@ URL = "https://developer.lametric.com/content/apps/icon_thumbs/{}_icon_thumb.png
 
 SETS = {
     "Instagram": [3741, 33712, 8649, 44238, 46949, 1643, 64045, 147],
-    "YouTube": [280, 3389, 65661, 10247],
 }
-CURRENT = {3741, 280}
+CURRENT = {3741}
 
 out = []
 for grp, ids in SETS.items():
@@ -23,7 +22,9 @@ for grp, ids in SETS.items():
             if r.status_code != 200:
                 print("skip", iid, r.status_code)
                 continue
-            im = Image.open(io.BytesIO(r.content)).convert("RGB")
+            # Auf echte 8x8 herunterrechnen = exakt das, was die Uhr anzeigt.
+            # Kleines PNG -> kurze, fehlerfreie base64.
+            im = Image.open(io.BytesIO(r.content)).convert("RGB").resize((8, 8), Image.LANCZOS)
             buf = io.BytesIO()
             im.save(buf, "PNG", optimize=True)
             b64 = base64.b64encode(buf.getvalue()).decode()
