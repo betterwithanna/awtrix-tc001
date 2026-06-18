@@ -80,6 +80,10 @@ SUPABASE_KEY = _get("SUPABASE_KEY")
 YT_API_KEY = _get("YT_API_KEY")
 YT_CHANNEL_ID = _get("YT_CHANNEL_ID")
 
+# Einnahmen-Spiegel: Schreib-Token fuer awtrix_set_metric.
+# Nur lokal noetig (tools/push_revenue.py); im Cloud-Job leer.
+REVENUE_TOKEN = _get("REVENUE_TOKEN")
+
 
 def require(*names):
     """Stellt sicher, dass die genannten Pflichtfelder gesetzt sind.

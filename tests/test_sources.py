@@ -59,3 +59,23 @@ def test_youtube_hidden_count_returns_none(monkeypatch):
     payload = {"items": [{"statistics": {"hiddenSubscriberCount": True}}]}
     monkeypatch.setattr(sources.requests, "get", lambda *a, **k: FakeResponse(200, payload))
     assert sources.get_youtube_subscribers() is None
+
+
+def test_revenue_none_without_config(monkeypatch):
+    monkeypatch.setattr(sources.config, "SUPABASE_URL", None)
+    monkeypatch.setattr(sources.config, "SUPABASE_KEY", None)
+    assert sources.get_revenue_yesterday() is None
+
+
+def test_revenue_returns_value(monkeypatch):
+    monkeypatch.setattr(sources.config, "SUPABASE_URL", "https://x.supabase.co")
+    monkeypatch.setattr(sources.config, "SUPABASE_KEY", "k")
+    monkeypatch.setattr(sources.requests, "post", lambda *a, **k: FakeResponse(200, 1234.5))
+    assert sources.get_revenue_yesterday() == 1234.5
+
+
+def test_revenue_null_returns_none(monkeypatch):
+    monkeypatch.setattr(sources.config, "SUPABASE_URL", "https://x.supabase.co")
+    monkeypatch.setattr(sources.config, "SUPABASE_KEY", "k")
+    monkeypatch.setattr(sources.requests, "post", lambda *a, **k: FakeResponse(200, None))
+    assert sources.get_revenue_yesterday() is None

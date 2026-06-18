@@ -57,3 +57,30 @@ def get_youtube_subscribers():
     except (requests.RequestException, ValueError, TypeError, KeyError) as exc:
         log.warning("YouTube-Abruf fehlgeschlagen: %s", exc)
         return None
+
+
+def get_revenue_yesterday():
+    """Einnahmen des Vortags (EUR) aus dem Supabase-Spiegel (RPC awtrix_get_metric).
+
+    Wird lokal von tools/push_revenue.py befuellt. None = noch kein Wert da.
+    """
+    if not (config.SUPABASE_URL and config.SUPABASE_KEY):
+        return None
+    url = f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_get_metric"
+    try:
+        resp = requests.post(
+            url,
+            headers={
+                "apikey": config.SUPABASE_KEY,
+                "Authorization": f"Bearer {config.SUPABASE_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={"p_key": "revenue_eur_yesterday"},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        value = resp.json()
+        return float(value) if value is not None else None
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        log.warning("Einnahmen-Abruf (Supabase) fehlgeschlagen: %s", exc)
+        return None

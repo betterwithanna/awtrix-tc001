@@ -58,7 +58,10 @@ def main():
         apps["youtube"] = awtrix.build_metric_app(
             f"YouTube {awtrix.format_number(yt)}", awtrix.YT_RED, icon="yt")
 
-    # --- Spotify / Einnahmen(Vortag) folgen hier (eigene Felder) ------------
+    # --- Einnahmen Vortag (EUR, aus dem Supabase-Spiegel) -------------------
+    rev = sources.get_revenue_yesterday()
+    if rev is not None:
+        apps["revenue"] = awtrix.build_revenue_app(rev, icon="eur")
 
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")
