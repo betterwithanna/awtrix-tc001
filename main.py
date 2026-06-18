@@ -29,8 +29,7 @@ def setup_logging():
 def main():
     setup_logging()
     log = logging.getLogger("main")
-    # Marken-Kachel: NUR das Logo-Blatt (kein Schriftzug), kurzer Brand-Flash.
-    apps = {"brand": {"icon": "bwa", "duration": 4, "lifetime": 2400}}
+    apps = {}
 
     # --- Instagram: Follower + Reichweite als ZWEI getrennte Felder ---------
     try:
