@@ -94,3 +94,11 @@ def test_follower_delta_returns_value(monkeypatch):
     monkeypatch.setattr(sources.config, "REVENUE_TOKEN", "t")
     monkeypatch.setattr(sources.requests, "post", lambda *a, **k: FakeResponse(200, 12))
     assert sources.get_follower_delta(100) == 12
+
+
+def test_mailing_delta_returns_value(monkeypatch):
+    monkeypatch.setattr(sources.config, "SUPABASE_URL", "https://x.supabase.co")
+    monkeypatch.setattr(sources.config, "SUPABASE_KEY", "k")
+    monkeypatch.setattr(sources.config, "REVENUE_TOKEN", "t")
+    monkeypatch.setattr(sources.requests, "post", lambda *a, **k: FakeResponse(200, 1))
+    assert sources.get_mailing_delta(447) == 1

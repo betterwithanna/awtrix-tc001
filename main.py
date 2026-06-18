@@ -63,6 +63,13 @@ def main():
     if mailing is not None:
         apps["mailing"] = awtrix.build_metric_app(
             f"Mailing {awtrix.format_number(mailing)}", awtrix.MAIL_BLUE, icon="mail")
+        # Neue Kontakte seit Tagesbeginn (gruen; bei Rueckgang rot)
+        mdelta = sources.get_mailing_delta(mailing)
+        if mdelta is not None:
+            sign = "+" if mdelta >= 0 else ""
+            apps["mailtoday"] = awtrix.build_metric_app(
+                f"{sign}{awtrix.format_number(mdelta)} heute",
+                awtrix.GROWTH_GREEN if mdelta >= 0 else awtrix.DROP_RED)
 
     # --- YouTube (Abonnenten) -----------------------------------------------
     yt = sources.get_youtube_subscribers()
