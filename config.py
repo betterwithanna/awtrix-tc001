@@ -70,6 +70,12 @@ FB_APP_SECRET = _get("FB_APP_SECRET")
 EUR_SIGN = _get("EUR_SIGN", "EUR")     # Waehrungszeichen fuer die Einnahmen-App
 IG_ICON = _get("IG_ICON", "")          # ID/Name eines hochgeladenen 8x8-Icons (optional)
 
+# --- Weitere Datenquellen ---------------------------------------------------
+# Supabase (Mailing-Kontaktzahl via RPC awtrix_contacts_count). Publishable Key
+# ist oeffentlich-sicher (RLS aktiv, RPC liefert nur eine Zahl).
+SUPABASE_URL = _get("SUPABASE_URL")
+SUPABASE_KEY = _get("SUPABASE_KEY")
+
 
 def require(*names):
     """Stellt sicher, dass die genannten Pflichtfelder gesetzt sind.

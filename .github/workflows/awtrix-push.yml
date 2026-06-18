@@ -43,6 +43,9 @@ jobs:
           MQTT_TLS: "false"
           IG_AUTH: instagram
           IG_API_VERSION: v21.0
+          # Mailing (Supabase) -- Publishable Key ist oeffentlich-sicher:
+          SUPABASE_URL: https://yayfjzetdpofpcoklwrr.supabase.co
+          SUPABASE_KEY: sb_publishable_5LSC86Vn81iJG17-eYLZkQ_mab2MtVp
           # Geheimnisse aus den Repository-Secrets:
           PREFIX: ${{ secrets.MQTT_PREFIX }}
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
