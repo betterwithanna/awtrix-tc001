@@ -29,18 +29,18 @@ def setup_logging():
 def main():
     setup_logging()
     log = logging.getLogger("main")
-    apps = {}
+    # Marken-Kachel (Logo-Blatt + Schriftzug) als erstes Feld im Loop.
+    apps = {"brand": awtrix.build_metric_app("Better With Anna", awtrix.HOME_LIME, icon="bwa")}
 
     # --- Instagram: Follower + Reichweite als ZWEI getrennte Felder ---------
     try:
         stats = instagram.get_stats()
-        ig_icon = config.IG_ICON or None
         apps["igfollow"] = awtrix.build_metric_app(
             f"Follower {awtrix.format_number(stats.get('followers', 0))}",
-            awtrix.IG_PINK, icon=ig_icon)
+            awtrix.IG_PINK, icon="ig")
         apps["igreach"] = awtrix.build_metric_app(
             f"Reach {awtrix.format_number(stats.get('reach', 0))}",
-            awtrix.IG_PINK, icon=ig_icon)
+            awtrix.IG_PINK, icon="ig")
     except instagram.TokenExpiredError as exc:
         log.error("Instagram-Token abgelaufen (refresh-token-Workflow erneuert ihn): %s", exc)
     except (instagram.InstagramError, RuntimeError) as exc:
@@ -50,13 +50,13 @@ def main():
     mailing = sources.get_mailing_count()
     if mailing is not None:
         apps["mailing"] = awtrix.build_metric_app(
-            f"Mailing {awtrix.format_number(mailing)}", awtrix.MAIL_BLUE)
+            f"Mailing {awtrix.format_number(mailing)}", awtrix.MAIL_BLUE, icon="mail")
 
     # --- YouTube (Abonnenten) -----------------------------------------------
     yt = sources.get_youtube_subscribers()
     if yt is not None:
         apps["youtube"] = awtrix.build_metric_app(
-            f"YouTube {awtrix.format_number(yt)}", awtrix.YT_RED)
+            f"YouTube {awtrix.format_number(yt)}", awtrix.YT_RED, icon="yt")
 
     # --- Spotify / Einnahmen(Vortag) folgen hier (eigene Felder) ------------
 

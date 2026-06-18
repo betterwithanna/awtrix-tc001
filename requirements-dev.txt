@@ -1,2 +1,3 @@
 -r requirements.txt
 pytest>=7.4
+pillow>=10.0      # nur fuer die Icon-Generierung in tools/

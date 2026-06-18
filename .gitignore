@@ -10,3 +10,6 @@ venv/
 
 # Logs
 *.log
+
+# Icon-Vorschauen (nur zum Anschauen, nicht noetig fuers Geraet)
+tools/icons/*_preview.png

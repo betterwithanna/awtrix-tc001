@@ -157,11 +157,16 @@ journalctl -u awtrix-push.service -f       # Logs
 
 ---
 
-## 5. Optionales Instagram-Icon (8×8)
-1. Web-Interface der Uhr öffnen: `http://<IP>` → **Icons**.
-2. Ein 8×8 `.jpg`/`.gif` hochladen **oder** eine numerische
-   [LaMetric-Icon-ID](https://developer.lametric.com/icons) verwenden.
-3. Den Datei-Namen (ohne Endung) bzw. die ID als `IG_ICON` in die `.env` eintragen.
+## 5. Icons (8×8)
+Die gebrandeten 8×8-Icons liegen unter `tools/icons/` — Logo-Blatt `bwa`, Instagram `ig`,
+YouTube `yt`, Mailing `mail` — und werden in `main.py` per Dateiname referenziert
+(`icon="ig"` usw.).
+
+- **Neu generieren:** `python tools/make_icon.py` (Logo-Blatt) bzw. `python tools/make_glyphs.py`.
+- **Auf die Uhr laden** (im selben WLAN): `python tools/upload_icons.py` → landet in `/ICONS/`.
+- Icons sind **geräte-lokal**: nach einem Neuflash der Uhr einmal neu hochladen.
+- Alternativ in der Uhr unter **Icons** ein [LaMetric-Icon](https://developer.lametric.com/icons)
+  per ID laden und den Namen in `main.py` setzen.
 
 ---
 
