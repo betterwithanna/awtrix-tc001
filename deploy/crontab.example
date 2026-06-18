@@ -1,0 +1,4 @@
+# Alternative zu systemd: klassischer cron-Eintrag (crontab -e).
+# Pfade an deine Installation anpassen. Laeuft alle 15 Minuten.
+
+*/15 * * * * cd /home/pi/awtrix-tc001 && /home/pi/awtrix-tc001/.venv/bin/python main.py >> /home/pi/awtrix-tc001/push.log 2>&1

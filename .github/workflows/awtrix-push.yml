@@ -1,0 +1,50 @@
+name: AWTRIX Instagram Push
+
+# Schiebt alle 15 Minuten Annas Instagram-Zahlen ueber einen oeffentlichen
+# MQTT-Broker (broker.emqx.io, ohne TLS/Login) an die Uhr.
+#
+# Warum oeffentlicher Broker ohne Login?
+#   AWTRIX 0.98 kann KEIN MQTT-over-TLS (HiveMQ scheidet aus) und hat ein zu
+#   kurzes Username-Feld fuer lange Tokens (flespi scheidet aus). Schutz erfolgt
+#   ueber einen nicht erratbaren PREFIX (liegt als Secret).
+#
+# HINWEIS: In der Cloud funktioniert nur MODE=mqtt -- HTTP erreicht das Geraet
+# im Heim-WLAN nicht. Cron laeuft nur auf dem Default-Branch.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"      # alle 15 Minuten (Zeiten in UTC)
+  workflow_dispatch: {}          # manueller Start-Button im Actions-Tab
+
+concurrency:
+  group: awtrix-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Push to AWTRIX
+        env:
+          # Nicht-geheime Defaults:
+          MODE: mqtt
+          MQTT_HOST: broker.emqx.io
+          MQTT_PORT: "1883"
+          MQTT_TLS: "false"
+          IG_AUTH: instagram
+          IG_API_VERSION: v21.0
+          # Geheimnisse aus den Repository-Secrets:
+          PREFIX: ${{ secrets.MQTT_PREFIX }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: python main.py

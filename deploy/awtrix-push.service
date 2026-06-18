@@ -1,0 +1,11 @@
+[Unit]
+Description=AWTRIX Instagram Push (oneshot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Pfade an deine Installation anpassen:
+WorkingDirectory=/home/pi/awtrix-tc001
+EnvironmentFile=/home/pi/awtrix-tc001/.env
+ExecStart=/home/pi/awtrix-tc001/.venv/bin/python main.py
