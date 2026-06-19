@@ -139,3 +139,31 @@ def push(apps):
         push_mqtt(apps)
     else:
         raise AwtrixError(f"Unbekannter MODE '{config.MODE}' (erlaubt: mqtt | http)")
+
+
+def notify(payload):
+    """Einmalige AWTRIX-Notification (Ton + kurze Einblendung).
+
+    MQTT -> Topic ``[PREFIX]/notify`` | HTTP -> ``POST /api/notify``.
+    payload kann u. a. ``text``, ``rtttl`` (Melodie), ``color``, ``icon``, ``duration``.
+    Fehler werden nur geloggt (ein verpasster Ton soll den Push nicht kippen).
+    """
+    if config.MODE == "http":
+        try:
+            resp = requests.post(f"http://{config.AWTRIX_IP}/api/notify", json=payload, timeout=30)
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            log.warning("Notify (HTTP) fehlgeschlagen: %s", exc)
+        return
+    if not config.MQTT_HOST:
+        return
+    try:
+        client = _make_mqtt_client()
+        client.connect(config.MQTT_HOST, config.MQTT_PORT, keepalive=30)
+        client.loop_start()
+        info = client.publish(f"{config.PREFIX}/notify", json.dumps(payload), qos=0, retain=False)
+        info.wait_for_publish(timeout=10)
+        client.loop_stop()
+        client.disconnect()
+    except Exception as exc:  # noqa: BLE001 -- Ton ist optional
+        log.warning("Notify (MQTT) fehlgeschlagen: %s", exc)

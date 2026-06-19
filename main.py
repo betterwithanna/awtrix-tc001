@@ -13,6 +13,7 @@ import logging
 import sys
 
 import awtrix
+import chime
 import config
 import instagram
 import sources
@@ -47,6 +48,7 @@ def main():
     setup_logging()
     log = logging.getLogger("main")
     apps = {}
+    follower_delta = None  # fuer den +100-Follower-Ton nach dem Push
 
     # --- Instagram: Follower(+Zuwachs) & Reach(+Vortagsvergleich), je EIN Feld ---
     try:
@@ -55,8 +57,9 @@ def main():
         reach = stats.get("reach", 0)
 
         # Follower-Zahl (pink) + Tageszuwachs (gruen) in einem Feld
+        follower_delta = sources.get_follower_delta(followers)
         frags = [(awtrix.format_number(followers), awtrix.IG_PINK)]
-        frag = _delta_fragment(sources.get_follower_delta(followers))
+        frag = _delta_fragment(follower_delta)
         if frag:
             frags.append(frag)
         apps["igfollow"] = awtrix.build_combo_app(frags, icon="ig")
@@ -111,6 +114,15 @@ def main():
         return 1
 
     log.info("Fertig -- Apps gesendet: %s", ", ".join(apps))
+
+    # --- Event-Toene (nach dem Push, optional; Fehler kippen den Lauf nicht) -
+    # +100 Follower/Tag bzw. neuer Verkauf -> kurzer Ton, Ruhe 22-8 Uhr.
+    try:
+        chime.follower_milestone(follower_delta)
+        chime.new_payment(sources.get_metric("revenue_eur_mtd"))
+    except Exception as exc:  # noqa: BLE001 -- Ton ist Beiwerk
+        log.warning("Chime fehlgeschlagen: %s", exc)
+
     return 0
 
 

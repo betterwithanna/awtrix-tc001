@@ -114,6 +114,46 @@ def get_revenue_today():
         return None
 
 
+def get_metric(key):
+    """Liest einen beliebigen Wert aus dem Supabase-Spiegel (RPC awtrix_get_metric)."""
+    if not (config.SUPABASE_URL and config.SUPABASE_KEY):
+        return None
+    try:
+        resp = requests.post(
+            f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_get_metric",
+            headers={"apikey": config.SUPABASE_KEY,
+                     "Authorization": f"Bearer {config.SUPABASE_KEY}",
+                     "Content-Type": "application/json"},
+            json={"p_key": key}, timeout=20,
+        )
+        resp.raise_for_status()
+        value = resp.json()
+        return float(value) if value is not None else None
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        log.warning("get_metric '%s' fehlgeschlagen: %s", key, exc)
+        return None
+
+
+def set_metric(key, value):
+    """Schreibt einen Wert in den Supabase-Spiegel (RPC awtrix_set_metric, token-geschuetzt).
+
+    Nur fuer EIGENE awtrix_*-Keys verwenden -- NIE plattform-eigene Keys ueberschreiben.
+    """
+    if not (config.SUPABASE_URL and config.SUPABASE_KEY and config.REVENUE_TOKEN):
+        return
+    try:
+        requests.post(
+            f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_set_metric",
+            headers={"apikey": config.SUPABASE_KEY,
+                     "Authorization": f"Bearer {config.SUPABASE_KEY}",
+                     "Content-Type": "application/json"},
+            json={"p_key": key, "p_value": float(value), "p_token": config.REVENUE_TOKEN},
+            timeout=20,
+        )
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        log.warning("set_metric '%s' fehlgeschlagen: %s", key, exc)
+
+
 def _daily_delta(key, current):
     """Tageszuwachs einer Kennzahl seit Tagesbeginn (Wiener Zeit) via Supabase-RPC.
 
