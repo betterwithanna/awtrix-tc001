@@ -68,13 +68,19 @@ def test_base_url_switch(monkeypatch):
 
 
 def test_reach_change_pct(monkeypatch):
-    # values: [..., yesterday=100, today=120] -> (120-100)/100 = +20%
-    payload = {"data": [{"values": [
-        {"value": 300}, {"value": 100}, {"value": 120}]}]}
-    _mock_get(monkeypatch, FakeResponse(200, payload))
+    # zwei total_value-Fenster: zuerst heute (120), dann gestern (100) -> +20%
+    seq = iter([
+        FakeResponse(200, {"data": [{"total_value": {"value": 120}}]}),  # heute
+        FakeResponse(200, {"data": [{"total_value": {"value": 100}}]}),  # gestern
+    ])
+    monkeypatch.setattr(instagram.requests, "get", lambda *a, **k: next(seq))
     assert instagram.get_reach_change_pct() == 20.0
 
 
-def test_reach_change_pct_insufficient_data(monkeypatch):
-    _mock_get(monkeypatch, FakeResponse(200, {"data": [{"values": [{"value": 5}]}]}))
+def test_reach_change_pct_no_yesterday(monkeypatch):
+    seq = iter([
+        FakeResponse(200, {"data": [{"total_value": {"value": 50}}]}),  # heute
+        FakeResponse(200, {"data": [{"total_value": {"value": 0}}]}),   # gestern = 0
+    ])
+    monkeypatch.setattr(instagram.requests, "get", lambda *a, **k: next(seq))
     assert instagram.get_reach_change_pct() is None

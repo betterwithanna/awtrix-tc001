@@ -13,7 +13,7 @@ import config  # noqa: E402
 
 ICONS = os.path.join(os.path.dirname(__file__), "icons")
 # Nur die echten Loop-Icons hochladen (keine Test-Kandidaten).
-ICON_NAMES = ["ig", "yt", "mail", "eur"]
+ICON_NAMES = ["ig", "mail", "heart"]
 
 
 def main():

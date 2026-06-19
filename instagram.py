@@ -9,8 +9,8 @@ Unterstuetzt beide offiziellen Wege ueber den Konfig-Schalter ``IG_AUTH``:
 
 Liefert ``get_stats()`` -> ``{"followers": int, "reach": int}``.
 """
+import datetime as dt
 import logging
-import time
 
 import requests
 
@@ -68,57 +68,57 @@ def get_followers():
     return int(data.get("followers_count", 0) or 0)
 
 
-def get_reach():
-    """Reichweite des aktuellen Tages (Summe). 0, falls nicht abrufbar.
+def _reach_total(since, until):
+    """Reach (total_value) fuer ein Zeitfenster [since, until] (Unix-Sek.).
 
-    Insights sind weniger stabil als die Follower-Zahl (z. B. zu wenig Aktivitaet),
-    daher wird hier defensiv 0 zurueckgegeben statt einen Fehler zu werfen.
+    None bei Fehler/keinen Daten. WICHTIG: ohne since/until liefert die API eine
+    Mehrtages-Summe, nicht 'heute'. Gleiche Methode fuer heute & gestern -> Anzeige
+    und %-Abweichung sind konsistent.
     """
     try:
-        data = _request(
-            f"{_base_url()}/insights",
-            {"metric": "reach", "period": "day", "metric_type": "total_value"},
-        )
+        data = _request(f"{_base_url()}/insights", {
+            "metric": "reach", "period": "day", "metric_type": "total_value",
+            "since": int(since), "until": int(until),
+        })
     except InstagramError as exc:
         log.warning("Reichweite konnte nicht geladen werden: %s", exc)
-        return 0
-
+        return None
     rows = data.get("data", [])
     if not rows:
-        return 0
+        return None
     total = rows[0].get("total_value", {})
     if isinstance(total, dict):
         return int(total.get("value", 0) or 0)
-    return 0
+    return None
+
+
+def _day_bounds():
+    """(heute 00:00 UTC, jetzt, gestern 00:00 UTC) als Unix-Sekunden."""
+    now = dt.datetime.now(dt.timezone.utc)
+    today0 = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    return today0.timestamp(), now.timestamp(), (today0 - dt.timedelta(days=1)).timestamp()
+
+
+def get_reach():
+    """Reichweite HEUTE (00:00 UTC -> jetzt). 0, falls nicht abrufbar."""
+    today0, now, _ = _day_bounds()
+    val = _reach_total(today0, now)
+    return val if val is not None else 0
 
 
 def get_reach_change_pct():
-    """Live-Abweichung der HEUTIGEN Reichweite gegenueber GESTERN (in %).
+    """Abweichung der heutigen Reichweite gegenueber GESTERN (in %).
 
-    Vergleicht den heutigen (noch laufenden) Tageswert direkt mit gestern.
-    Hinweis: morgens stark negativ, da heute erst begonnen hat -- so gewuenscht.
+    Beide Werte mit derselben Methode (total_value je Tagesfenster) -> konsistent
+    zur angezeigten Reach-Zahl. Morgens negativ (heute erst angefangen) -- gewollt.
     None bei zu wenig Daten.
     """
-    now = int(time.time())
-    try:
-        data = _request(f"{_base_url()}/insights", {
-            "metric": "reach", "period": "day",
-            "since": now - 6 * 86400, "until": now,
-        })
-    except InstagramError as exc:
-        log.warning("Reach-Verlauf nicht abrufbar: %s", exc)
+    today0, now, yest0 = _day_bounds()
+    today = _reach_total(today0, now)
+    yest = _reach_total(yest0, today0)
+    if today is None or not yest:
         return None
-
-    rows = data.get("data", [])
-    if not rows:
-        return None
-    values = [v.get("value", 0) for v in rows[0].get("values", [])]
-    if len(values) < 2:
-        return None
-    today, yesterday = values[-1], values[-2]
-    if not yesterday:
-        return None
-    return round((today - yesterday) / yesterday * 100, 1)
+    return round((today - yest) / yest * 100, 1)
 
 
 def get_stats():

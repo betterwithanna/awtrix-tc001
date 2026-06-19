@@ -81,14 +81,9 @@ def main():
             frags.append(frag)
         apps["mailing"] = awtrix.build_combo_app(frags, icon="mail")
 
-    # --- YouTube-Abos (rot) + neue Abos heute (gruen) -----------------------
-    yt = sources.get_youtube_subscribers()
-    if yt is not None:
-        frags = [(awtrix.format_number(yt), awtrix.YT_RED)]
-        frag = _delta_fragment(sources.get_youtube_delta(yt))
-        if frag:
-            frags.append(frag)
-        apps["youtube"] = awtrix.build_combo_app(frags, icon="yt")
+    # --- YouTube voruebergehend deaktiviert (zu wenige Abos, macht aktuell
+    #     wenig Sinn). sources.get_youtube_subscribers()/get_youtube_delta()
+    #     bleiben da -- Block bei Bedarf einfach wieder einkommentieren.
 
     # --- Einnahmen heute (EUR, live aus Taplink via Supabase-Spiegel) -------
     # Bevorzugt den Live-Tageswert; faellt auf den Vortag zurueck, falls heute
@@ -98,6 +93,9 @@ def main():
     if rev is not None:
         # Kein Icon -- Text "X EUR" ist eindeutig genug.
         apps["revenue"] = awtrix.build_revenue_app(rev)
+
+    # --- Persoenliche Zeile: Herz + "I LOVE YOU" ----------------------------
+    apps["love"] = awtrix.build_metric_app("I LOVE YOU", awtrix.IG_PINK, icon="heart")
 
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")
