@@ -50,24 +50,19 @@ def latest_day(data):
 
 
 def main():
+    # ABGESCHALTET (2026-06-19): Die Einnahmen schreibt jetzt die PLATTFORM
+    # (revenue-email-cron, alle 10 Min) nach Supabase -> revenue_eur_today/_yesterday/_mtd,
+    # und die Uhr liest revenue_eur_today. Dieses Lokal-Skript wuerde den
+    # plattform-eigenen Key revenue_eur_yesterday ueberschreiben -> daher deaktiviert.
+    print("DEPRECATED: Einnahmen kommen jetzt von der Plattform. Skript schreibt nichts mehr.")
+    return
+
+    # --- alte Logik (bewusst nach dem return, nur als Referenz) ---
     with open(EINNAHMEN, encoding="utf-8") as fh:
         data = json.load(fh)
     day = latest_day(data)
-    if not day:
-        print("Keine Einnahmen-Daten gefunden.")
-        return
     value = revenue_eur_for(data, day)
     print(f"Einnahmen {day}: {value} EUR")
-
-    key = config.SUPABASE_KEY
-    resp = requests.post(
-        f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_set_metric",
-        headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        json={"p_key": "revenue_eur_yesterday", "p_value": value, "p_token": config.REVENUE_TOKEN},
-        timeout=20,
-    )
-    print("Supabase SET ->", resp.status_code)
-    resp.raise_for_status()
 
 
 if __name__ == "__main__":
