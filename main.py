@@ -50,13 +50,13 @@ def _pct_fragment(pct):
 
 
 def _is_night():
-    """True zwischen 22:00 und 06:00 Wiener Zeit (Display-Dimmfenster)."""
+    """True zwischen 19:00 und 06:00 Wiener Zeit (Display-Dimmfenster)."""
     hour = dt.datetime.now(_VIENNA).hour
-    return hour >= 22 or hour < 6
+    return hour >= 19 or hour < 6
 
 
 def _apply_brightness(log):
-    """Nachts (22:00-06:00 Wien) das ganze Display auf ~15 % dimmen, sonst Auto.
+    """Nachts (19:00-06:00 Wien) das ganze Display auf ~15 % dimmen, sonst Auto.
 
     Wird bei JEDEM Lauf gesetzt (selbstkorrigierend alle ~15 Min). Tagsueber
     Auto-Helligkeit (ABRI=true) = die normale Geraete-Steuerung. Fehler kippen

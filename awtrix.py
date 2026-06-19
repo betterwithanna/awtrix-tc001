@@ -190,7 +190,9 @@ def settings(payload):
         client = _make_mqtt_client()
         client.connect(config.MQTT_HOST, config.MQTT_PORT, keepalive=30)
         client.loop_start()
-        info = client.publish(f"{config.PREFIX}/settings", json.dumps(payload), qos=0, retain=False)
+        # qos=1 + retain=True: Einstellung muss ankommen UND bleiben (der Broker
+        # liefert sie der Uhr bei jedem Reconnect erneut aus -> dimmt zuverlaessig).
+        info = client.publish(f"{config.PREFIX}/settings", json.dumps(payload), qos=1, retain=True)
         info.wait_for_publish(timeout=10)
         client.loop_stop()
         client.disconnect()

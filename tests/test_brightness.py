@@ -19,7 +19,7 @@ def test_night_dims_whole_display(monkeypatch):
     _patch(monkeypatch, rec, night=True)
     main._apply_brightness(logging.getLogger("test"))
     assert rec.calls == [{"ABRI": False, "BRI": main.NIGHT_BRI}]
-    assert main.NIGHT_BRI == 38  # ~15 % von 255
+    assert main.NIGHT_BRI == 38  # ~15 % von 255 (Fenster 19:00-06:00)
 
 
 def test_day_restores_auto(monkeypatch):
