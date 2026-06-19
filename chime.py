@@ -4,7 +4,7 @@ Der Cloud-Job ruft nach jedem Push ``follower_milestone`` und ``new_payment``
 auf. Zustand liegt in Supabase (``chime_ig_hundreds`` / ``chime_revenue_mtd``),
 damit jede 100er-Marke bzw. jeder Verkauf nur EINMAL klingelt.
 
-Ruhezeiten 22:00-08:00 (Wiener Zeit): in dieser Zeit wird der Zustand zwar
+Ruhezeiten 23:00-08:00 (Wiener Zeit): in dieser Zeit wird der Zustand zwar
 aktualisiert (kein Nachklingeln spaeter), aber KEIN Ton gespielt.
 
 Da der Job nur alle ~10 Min laeuft, kommt der Ton bis zu ~10 Min (Follower)
@@ -24,12 +24,12 @@ LVLUP = "lvlup:d=16,o=6,b=160:c,e,g,c7"
 COIN = "coin:d=4,o=5,b=900:16b6,32f7"
 
 _VIENNA = ZoneInfo("Europe/Vienna")
-_QUIET_START = 22  # ab 22:00 still
+_QUIET_START = 23  # ab 23:00 still
 _QUIET_END = 8     # bis 08:00 still
 
 
 def _active_now():
-    """True, wenn ausserhalb der Ruhezeit (08:00-22:00 Wiener Zeit)."""
+    """True, wenn ausserhalb der Ruhezeit (08:00-23:00 Wiener Zeit)."""
     hour = dt.datetime.now(_VIENNA).hour
     return _QUIET_END <= hour < _QUIET_START
 

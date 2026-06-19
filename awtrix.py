@@ -167,3 +167,32 @@ def notify(payload):
         client.disconnect()
     except Exception as exc:  # noqa: BLE001 -- Ton ist optional
         log.warning("Notify (MQTT) fehlgeschlagen: %s", exc)
+
+
+def settings(payload):
+    """Globale AWTRIX-Einstellungen setzen (z. B. Helligkeit ``BRI``/``ABRI``).
+
+    MQTT -> Topic ``[PREFIX]/settings`` | HTTP -> ``POST /api/settings``.
+    Fehler werden nur geloggt (Helligkeit ist Beiwerk, darf den Push nicht kippen).
+    """
+    if config.MODE == "http":
+        try:
+            resp = requests.post(
+                f"http://{config.AWTRIX_IP}/api/settings", json=payload, timeout=30
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            log.warning("Settings (HTTP) fehlgeschlagen: %s", exc)
+        return
+    if not config.MQTT_HOST:
+        return
+    try:
+        client = _make_mqtt_client()
+        client.connect(config.MQTT_HOST, config.MQTT_PORT, keepalive=30)
+        client.loop_start()
+        info = client.publish(f"{config.PREFIX}/settings", json.dumps(payload), qos=0, retain=False)
+        info.wait_for_publish(timeout=10)
+        client.loop_stop()
+        client.disconnect()
+    except Exception as exc:  # noqa: BLE001 -- Helligkeit ist optional
+        log.warning("Settings (MQTT) fehlgeschlagen: %s", exc)

@@ -9,14 +9,19 @@ Exit-Codes:
     1 = allgemeiner Fehler (Abruf/Versand)
     2 = Access-Token abgelaufen (siehe refresh_token.py)
 """
+import datetime as dt
 import logging
 import sys
+from zoneinfo import ZoneInfo
 
 import awtrix
 import chime
 import config
 import instagram
 import sources
+
+_VIENNA = ZoneInfo("Europe/Vienna")
+NIGHT_BRI = 38  # ~15 % von 255 -- Nacht-Helligkeit fuer das ganze Display
 
 
 def setup_logging():
@@ -44,9 +49,31 @@ def _pct_fragment(pct):
     return (f" {round(pct):+d}%", color)
 
 
+def _is_night():
+    """True zwischen 22:00 und 06:00 Wiener Zeit (Display-Dimmfenster)."""
+    hour = dt.datetime.now(_VIENNA).hour
+    return hour >= 22 or hour < 6
+
+
+def _apply_brightness(log):
+    """Nachts (22:00-06:00 Wien) das ganze Display auf ~15 % dimmen, sonst Auto.
+
+    Wird bei JEDEM Lauf gesetzt (selbstkorrigierend alle ~15 Min). Tagsueber
+    Auto-Helligkeit (ABRI=true) = die normale Geraete-Steuerung. Fehler kippen
+    den Push nicht -- awtrix.settings loggt nur.
+    """
+    if _is_night():
+        awtrix.settings({"ABRI": False, "BRI": NIGHT_BRI})
+        log.info("Helligkeit: Nacht (~15%%, BRI=%d)", NIGHT_BRI)
+    else:
+        awtrix.settings({"ABRI": True})
+        log.info("Helligkeit: Tag (Auto)")
+
+
 def main():
     setup_logging()
     log = logging.getLogger("main")
+    _apply_brightness(log)
     apps = {}
     follower_delta = None  # fuer den +100-Follower-Ton nach dem Push
 
@@ -116,7 +143,7 @@ def main():
     log.info("Fertig -- Apps gesendet: %s", ", ".join(apps))
 
     # --- Event-Toene (nach dem Push, optional; Fehler kippen den Lauf nicht) -
-    # +100 Follower/Tag bzw. neuer Verkauf -> kurzer Ton, Ruhe 22-8 Uhr.
+    # +100 Follower/Tag bzw. neuer Verkauf -> kurzer Ton, Ruhe 23-8 Uhr.
     try:
         chime.follower_milestone(follower_delta)
         chime.new_payment(sources.get_metric("revenue_eur_mtd"))
