@@ -141,6 +141,33 @@ def push(apps):
         raise AwtrixError(f"Unbekannter MODE '{config.MODE}' (erlaubt: mqtt | http)")
 
 
+def remove_app(name):
+    """Entfernt eine Custom-App wieder von der Uhr (leeres retained Payload).
+
+    Noetig fuer zeitlich begrenzte Apps (z. B. den Morgengruss): da Apps mit
+    retain=True gepusht werden, bliebe die App sonst dauerhaft im Loop haengen.
+    MQTT -> leere Nachricht an ``[PREFIX]/custom/[name]`` (retain) | HTTP -> leerer Body.
+    """
+    if config.MODE == "http":
+        try:
+            requests.post(f"http://{config.AWTRIX_IP}/api/custom?name={name}", data="", timeout=30)
+        except requests.RequestException as exc:
+            log.warning("Remove-App '%s' (HTTP) fehlgeschlagen: %s", name, exc)
+        return
+    if not config.MQTT_HOST:
+        return
+    try:
+        client = _make_mqtt_client()
+        client.connect(config.MQTT_HOST, config.MQTT_PORT, keepalive=30)
+        client.loop_start()
+        info = client.publish(f"{config.PREFIX}/custom/{name}", "", qos=1, retain=True)
+        info.wait_for_publish(timeout=10)
+        client.loop_stop()
+        client.disconnect()
+    except Exception as exc:  # noqa: BLE001 -- Aufraeumen ist Beiwerk
+        log.warning("Remove-App '%s' (MQTT) fehlgeschlagen: %s", name, exc)
+
+
 def notify(payload):
     """Einmalige AWTRIX-Notification (Ton + kurze Einblendung).
 

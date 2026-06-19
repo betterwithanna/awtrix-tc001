@@ -56,6 +56,11 @@ def _is_night():
     return hour >= 19 or hour < 6
 
 
+def _is_morning():
+    """True zwischen 06:00 und 09:00 Wiener Zeit (Guten-Morgen-Gruss)."""
+    return 6 <= dt.datetime.now(_VIENNA).hour < 9
+
+
 def _apply_brightness(log):
     """Nachts (19:00-06:00 Wien) das ganze Display fix auf BRI=1 dimmen, sonst Auto.
 
@@ -126,7 +131,17 @@ def main():
         apps["revenue"] = awtrix.build_revenue_app(rev)
 
     # --- Persoenliche Zeile: Herz + "I LOVE YOU" ----------------------------
-    apps["love"] = awtrix.build_metric_app("I LOVE YOU", awtrix.IG_PINK, icon="heart")
+    apps["love"] = awtrix.build_metric_app("I LOVE YOU FOREVER", awtrix.IG_PINK, icon="heart")
+
+    # --- Guten-Morgen-Gruss: nur 06:00-09:00 Wien, eigenes Feld + Sonne ------
+    # Ausserhalb des Fensters die App aktiv entfernen (sonst bliebe sie wegen
+    # retain=True dauerhaft im Loop haengen).
+    if _is_morning():
+        apps["morning"] = awtrix.build_metric_app(
+            "Good morning my wonderful Wifey!", "#FFC800", icon="sun"
+        )
+    else:
+        awtrix.remove_app("morning")
 
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")
