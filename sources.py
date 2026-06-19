@@ -86,6 +86,34 @@ def get_revenue_yesterday():
         return None
 
 
+def get_revenue_today():
+    """Heutige Einnahmen (EUR) aus dem Supabase-Spiegel (RPC awtrix_get_metric).
+
+    Wird serverseitig (Plattform-Cron) alle ~20 Min aus den Live-Taplink-Zahlungen
+    aktualisiert. None = noch kein Wert da.
+    """
+    if not (config.SUPABASE_URL and config.SUPABASE_KEY):
+        return None
+    url = f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_get_metric"
+    try:
+        resp = requests.post(
+            url,
+            headers={
+                "apikey": config.SUPABASE_KEY,
+                "Authorization": f"Bearer {config.SUPABASE_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={"p_key": "revenue_eur_today"},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        value = resp.json()
+        return float(value) if value is not None else None
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        log.warning("Einnahmen-heute-Abruf (Supabase) fehlgeschlagen: %s", exc)
+        return None
+
+
 def _daily_delta(key, current):
     """Tageszuwachs einer Kennzahl seit Tagesbeginn (Wiener Zeit) via Supabase-RPC.
 
