@@ -21,7 +21,8 @@ import instagram
 import sources
 
 _VIENNA = ZoneInfo("Europe/Vienna")
-NIGHT_BRI = 38  # ~15 % von 255 -- Nacht-Helligkeit fuer das ganze Display
+NIGHT_BRI = 1  # niedrigste Nacht-Helligkeit (Owner-Wunsch); ABRI=false fixiert
+               # den Wert, sonst regelt der Lichtsensor staendig nach.
 
 
 def setup_logging():
@@ -56,7 +57,7 @@ def _is_night():
 
 
 def _apply_brightness(log):
-    """Nachts (19:00-06:00 Wien) das ganze Display auf ~15 % dimmen, sonst Auto.
+    """Nachts (19:00-06:00 Wien) das ganze Display fix auf BRI=1 dimmen, sonst Auto.
 
     Wird bei JEDEM Lauf gesetzt (selbstkorrigierend alle ~15 Min). Tagsueber
     Auto-Helligkeit (ABRI=true) = die normale Geraete-Steuerung. Fehler kippen
@@ -64,7 +65,7 @@ def _apply_brightness(log):
     """
     if _is_night():
         awtrix.settings({"ABRI": False, "BRI": NIGHT_BRI})
-        log.info("Helligkeit: Nacht (~15%%, BRI=%d)", NIGHT_BRI)
+        log.info("Helligkeit: Nacht (BRI=%d, fix)", NIGHT_BRI)
     else:
         awtrix.settings({"ABRI": True})
         log.info("Helligkeit: Tag (Auto)")
