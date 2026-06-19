@@ -93,9 +93,8 @@ def main():
     # --- Einnahmen heute (EUR, live aus Taplink via Supabase-Spiegel) -------
     # Bevorzugt den Live-Tageswert; faellt auf den Vortag zurueck, falls heute
     # noch kein Wert gespiegelt wurde.
+    # Heutiger Live-Wert direkt -- ein 0 am Morgen ist gewollt (kein Vortag).
     rev = sources.get_revenue_today()
-    if not rev:  # None oder 0.0 -> bis zum ersten Verkauf heute den Vortag zeigen
-        rev = sources.get_revenue_yesterday()
     if rev is not None:
         # Kein Icon -- Text "X EUR" ist eindeutig genug.
         apps["revenue"] = awtrix.build_revenue_app(rev)
