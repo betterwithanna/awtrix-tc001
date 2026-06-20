@@ -121,6 +121,52 @@ def get_reach_change_pct():
     return round((today - yest) / yest * 100, 1)
 
 
+def _media_views(media_id):
+    """Aufrufe eines Beitrags via Insights (``views``, sonst ``reach``). None sonst.
+
+    ``metric_type=total_value`` -> Wert steht unter ``values[0].value`` (lifetime).
+    Reels haben ``views``; aeltere Bild-Posts ggf. nur ``reach`` -> Fallback.
+    """
+    host = _base_url().rsplit("/", 1)[0]  # .../{version} ohne IG_USER_ID
+    for metric in ("views", "reach"):
+        try:
+            ins = _request(f"{host}/{media_id}/insights",
+                           {"metric": metric, "metric_type": "total_value"})
+        except InstagramError as exc:
+            log.warning("Insight '%s' fuer %s fehlgeschlagen: %s", metric, media_id, exc)
+            continue
+        rows = ins.get("data") or []
+        if rows:
+            values = rows[0].get("values") or []
+            if values and values[0].get("value") is not None:
+                return int(values[0]["value"])
+    return None
+
+
+def get_last_post():
+    """Neuester Beitrag/Reel mit Kennzahlen. None bei Fehler oder keinen Medien.
+
+    Rueckgabe-dict: ``timestamp`` (aware datetime), ``product_type`` (REELS/IMAGE/…),
+    ``likes``, ``comments`` (direkt am Media-Objekt) und ``views`` (via Insights).
+    """
+    data = _request(_base_url() + "/media", {
+        "fields": "id,media_type,media_product_type,timestamp,like_count,comments_count",
+        "limit": 1,
+    })
+    rows = data.get("data") or []
+    if not rows:
+        return None
+    m = rows[0]
+    return {
+        "id": m["id"],
+        "product_type": m.get("media_product_type") or m.get("media_type") or "",
+        "timestamp": dt.datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z"),
+        "likes": int(m.get("like_count", 0) or 0),
+        "comments": int(m.get("comments_count", 0) or 0),
+        "views": _media_views(m["id"]),
+    }
+
+
 def get_stats():
     """Holt Follower + Reichweite und gibt ein dict zurueck."""
     config.require("IG_TOKEN", "IG_USER_ID")

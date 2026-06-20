@@ -61,6 +61,12 @@ def _is_morning():
     return 6 <= dt.datetime.now(_VIENNA).hour < 9
 
 
+def _is_fresh(timestamp, hours=24):
+    """True, wenn der Zeitstempel weniger als ``hours`` Stunden zurueckliegt."""
+    age = dt.datetime.now(dt.timezone.utc) - timestamp
+    return 0 <= age.total_seconds() < hours * 3600
+
+
 def _apply_brightness(log):
     """Nachts (19:00-06:00 Wien) das ganze Display fix auf BRI=1 dimmen, sonst Auto.
 
@@ -142,6 +148,25 @@ def main():
         )
     else:
         awtrix.remove_app("morning")
+
+    # --- Letzter Beitrag/Reel: nur in den ersten 24 h, eigenes Feld ----------
+    # Aufrufe (weiss) + Likes (pink) + Kommentare (blau); nach 24 h aktiv weg.
+    try:
+        post = instagram.get_last_post()
+    except (instagram.InstagramError, RuntimeError) as exc:
+        post = None
+        log.warning("Letzter Beitrag nicht abrufbar: %s", exc)
+
+    if post and _is_fresh(post["timestamp"]):
+        label = "Reel" if post["product_type"] == "REELS" else "Post"
+        frags = [(f"{label} ", awtrix.WHITE)]
+        if post["views"] is not None:
+            frags.append((f"{awtrix.format_number(post['views'])}v ", awtrix.WHITE))
+        frags.append((f"{post['likes']}L ", awtrix.IG_PINK))
+        frags.append((f"{post['comments']}C", awtrix.MAIL_BLUE))
+        apps["lastpost"] = awtrix.build_combo_app(frags, icon="ig")
+    else:
+        awtrix.remove_app("lastpost")
 
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")
