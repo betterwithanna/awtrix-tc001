@@ -21,8 +21,10 @@ import instagram
 import sources
 
 _VIENNA = ZoneInfo("Europe/Vienna")
-NIGHT_BRI = 1  # niedrigste Nacht-Helligkeit (Owner-Wunsch); ABRI=false fixiert
-               # den Wert, sonst regelt der Lichtsensor staendig nach.
+DAY_BRI = 30    # Tag-Helligkeit (fix, kein Sensor-Nachregeln)
+NIGHT_BRI = 1   # Nacht-Helligkeit ab 20:30 (Owner-Wunsch), niedrigste Stufe
+_NIGHT_START_MIN = 20 * 60 + 30  # 20:30 Wien -> dimmen
+_NIGHT_END_MIN = 6 * 60          # 06:00 Wien -> wieder Tag
 
 
 def setup_logging():
@@ -51,9 +53,10 @@ def _pct_fragment(pct):
 
 
 def _is_night():
-    """True zwischen 19:00 und 06:00 Wiener Zeit (Display-Dimmfenster)."""
-    hour = dt.datetime.now(_VIENNA).hour
-    return hour >= 19 or hour < 6
+    """True zwischen 20:30 und 06:00 Wiener Zeit (Display-Dimmfenster)."""
+    now = dt.datetime.now(_VIENNA)
+    minutes = now.hour * 60 + now.minute
+    return minutes >= _NIGHT_START_MIN or minutes < _NIGHT_END_MIN
 
 
 def _is_morning():
@@ -68,18 +71,18 @@ def _is_fresh(timestamp, hours=24):
 
 
 def _apply_brightness(log):
-    """Nachts (19:00-06:00 Wien) das ganze Display fix auf BRI=1 dimmen, sonst Auto.
+    """Helligkeit fix setzen: 20:30-06:00 Wien -> BRI=1, sonst BRI=30.
 
-    Wird bei JEDEM Lauf gesetzt (selbstkorrigierend alle ~15 Min). Tagsueber
-    Auto-Helligkeit (ABRI=true) = die normale Geraete-Steuerung. Fehler kippen
-    den Push nicht -- awtrix.settings loggt nur.
+    Wird bei JEDEM Lauf gesetzt (selbstkorrigierend alle ~15 Min). Beide
+    Stufen mit ABRI=false, damit der Lichtsensor nicht nachregelt. Fehler
+    kippen den Push nicht -- awtrix.settings loggt nur.
     """
     if _is_night():
         awtrix.settings({"ABRI": False, "BRI": NIGHT_BRI})
         log.info("Helligkeit: Nacht (BRI=%d, fix)", NIGHT_BRI)
     else:
-        awtrix.settings({"ABRI": True})
-        log.info("Helligkeit: Tag (Auto)")
+        awtrix.settings({"ABRI": False, "BRI": DAY_BRI})
+        log.info("Helligkeit: Tag (BRI=%d, fix)", DAY_BRI)
 
 
 def main():
