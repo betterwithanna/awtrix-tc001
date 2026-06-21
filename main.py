@@ -25,6 +25,7 @@ DAY_BRI = 30    # Tag-Helligkeit (fix, kein Sensor-Nachregeln)
 NIGHT_BRI = 1   # Nacht-Helligkeit ab 20:30 (Owner-Wunsch), niedrigste Stufe
 _NIGHT_START_MIN = 20 * 60 + 30  # 20:30 Wien -> dimmen
 _NIGHT_END_MIN = 6 * 60          # 06:00 Wien -> wieder Tag
+GOAL_FOLLOWERS = 100_000         # Follower-Ziel fuer das Prognose-Feld
 
 
 def setup_logging():
@@ -112,6 +113,19 @@ def main():
         if frag:
             frags.append(frag)
         apps["igreach"] = awtrix.build_combo_app(frags, icon="ig")
+
+        # Ziel 100k: fehlende Follower (lime) + Prognose-Datum (gruen).
+        # Datum = heute + fehlend / Schnitt-Zuwachs der letzten 15 Tage.
+        missing = GOAL_FOLLOWERS - followers
+        if missing > 0:
+            gfrags = [(f"100k -{awtrix.format_number(missing)}", awtrix.HOME_LIME)]
+            avg = instagram.get_follower_avg_per_day(15)
+            if avg and avg > 0:
+                eta = dt.date.today() + dt.timedelta(days=round(missing / avg))
+                gfrags.append((f" ~{eta.strftime('%d.%m.%y')}", awtrix.GROWTH_GREEN))
+            apps["goal"] = awtrix.build_combo_app(gfrags, icon="ig")
+        else:
+            awtrix.remove_app("goal")  # Ziel erreicht -> Feld weg
     except instagram.TokenExpiredError as exc:
         log.error("Instagram-Token abgelaufen (refresh-token-Workflow erneuert ihn): %s", exc)
     except (instagram.InstagramError, RuntimeError) as exc:

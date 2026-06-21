@@ -121,6 +121,34 @@ def get_reach_change_pct():
     return round((today - yest) / yest * 100, 1)
 
 
+def get_follower_avg_per_day(days=15):
+    """Schnitt des taeglichen Follower-Zuwachses ueber die letzten ``days`` Tage.
+
+    Nutzt die Insight-Metrik ``follower_count`` (period=day). Die jeweils letzten
+    ~7-8 Tage liefert die API noch als 0 (nicht finalisiert) -- diese Null-Tage
+    am ENDE werden abgeschnitten, danach der Schnitt der letzten ``days`` echten
+    Tage. None bei Fehler oder keinen Daten.
+    """
+    now = dt.datetime.now(dt.timezone.utc)
+    since = int((now - dt.timedelta(days=days + 14)).timestamp())  # Puffer fuer Lag
+    until = int(now.timestamp())
+    try:
+        data = _request(_base_url() + "/insights", {
+            "metric": "follower_count", "period": "day", "since": since, "until": until,
+        })
+    except InstagramError as exc:
+        log.warning("follower_count-Insight fehlgeschlagen: %s", exc)
+        return None
+    rows = (data.get("data") or [{}])[0].get("values") or []
+    vals = [int(r.get("value", 0) or 0) for r in rows]
+    while vals and vals[-1] == 0:  # nicht-finalisierte 0-Tage am Ende entfernen
+        vals.pop()
+    window = vals[-days:]
+    if not window:
+        return None
+    return sum(window) / len(window)
+
+
 def _media_views(media_id):
     """Aufrufe eines Beitrags via Insights (``views``, sonst ``reach``). None sonst.
 
