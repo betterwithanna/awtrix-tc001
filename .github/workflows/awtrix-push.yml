@@ -1,12 +1,13 @@
 name: AWTRIX Instagram Push
 
-# Schiebt alle 15 Minuten Annas Instagram-Zahlen ueber einen oeffentlichen
-# MQTT-Broker (broker.emqx.io, ohne TLS/Login) an die Uhr.
+# Schiebt alle ~10-15 Minuten Annas Instagram-Zahlen ueber den PRIVATEN
+# Mosquitto-Broker auf Railway (reseau.proxy.rlwy.net:38125, plaintext+Login)
+# an die Uhr.
 #
-# Warum oeffentlicher Broker ohne Login?
-#   AWTRIX 0.98 kann KEIN MQTT-over-TLS (HiveMQ scheidet aus) und hat ein zu
-#   kurzes Username-Feld fuer lange Tokens (flespi scheidet aus). Schutz erfolgt
-#   ueber einen nicht erratbaren PREFIX (liegt als Secret).
+# Warum privater Broker?
+#   AWTRIX 0.98 kann KEIN MQTT-over-TLS (HiveMQ/flespi scheiden aus). Der frueher
+#   genutzte oeffentliche broker.emqx.io warf Clients still raus -> Display fror
+#   ein. Eigener Broker (broker/ im Repo) = stabile Verbindung, user/pass-Login.
 #
 # HINWEIS: In der Cloud funktioniert nur MODE=mqtt -- HTTP erreicht das Geraet
 # im Heim-WLAN nicht. Cron laeuft nur auf dem Default-Branch.
@@ -38,8 +39,8 @@ jobs:
         env:
           # Nicht-geheime Defaults:
           MODE: mqtt
-          MQTT_HOST: broker.emqx.io
-          MQTT_PORT: "1883"
+          MQTT_HOST: reseau.proxy.rlwy.net
+          MQTT_PORT: "38125"
           MQTT_TLS: "false"
           IG_AUTH: instagram
           IG_API_VERSION: v21.0
@@ -50,6 +51,8 @@ jobs:
           YT_CHANNEL_ID: UCPYugblWsGTrr1F2jp7wzqQ
           # Geheimnisse aus den Repository-Secrets:
           PREFIX: ${{ secrets.MQTT_PREFIX }}
+          MQTT_USER: ${{ secrets.MQTT_USER }}
+          MQTT_PASS: ${{ secrets.MQTT_PASS }}
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
