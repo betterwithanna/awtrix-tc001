@@ -17,6 +17,7 @@ from zoneinfo import ZoneInfo
 import awtrix
 import chime
 import config
+import crypto
 import instagram
 import sources
 
@@ -152,6 +153,20 @@ def main():
     if rev is not None:
         # Kein Icon -- Text "X EUR" ist eindeutig genug.
         apps["revenue"] = awtrix.build_revenue_app(rev)
+
+    # --- Krypto-Portfolio (BTC+SOL) in EUR + Tagesveraenderung --------------
+    # Direkt NACH den Einnahmen. Gesamtwert (lime) + Tages-% und Tages-EUR
+    # (gruen/rot). BTC-Icon. Preise live von CoinGecko.
+    port = crypto.get_portfolio()
+    if port is not None:
+        total, pct, eur = port
+        color = awtrix.GROWTH_GREEN if pct >= 0 else awtrix.DROP_RED
+        cfrags = [
+            (f"{awtrix.format_number(total)} {config.EUR_SIGN}", awtrix.HOME_LIME),
+            (f" {pct:+.1f}%", color),
+            (f" {eur:+.0f}{config.EUR_SIGN}", color),
+        ]
+        apps["crypto"] = awtrix.build_combo_app(cfrags, icon="btc")
 
     # --- Persoenliche Zeile: Herz + "I LOVE YOU" ----------------------------
     apps["love"] = awtrix.build_metric_app("I LOVE YOU FOREVER", awtrix.IG_PINK, icon="heart")
