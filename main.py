@@ -20,6 +20,7 @@ import config
 import crypto
 import instagram
 import sources
+import weather
 
 _VIENNA = ZoneInfo("Europe/Vienna")
 DAY_BRI = 30    # Tag-Helligkeit (fix, kein Sensor-Nachregeln)
@@ -167,6 +168,19 @@ def main():
             (f" {eur:+.0f}{config.EUR_SIGN}", color),
         ]
         apps["crypto"] = awtrix.build_combo_app(cfrags, icon="btc")
+
+    # --- Aussentemperatur (Kirchstetterngasse 7, 1160 Wien) -----------------
+    temp = weather.get_temperature()
+    if temp is not None:
+        if temp <= 4:
+            tcol = awtrix.MAIL_BLUE      # kalt
+        elif temp >= 28:
+            tcol = awtrix.DROP_RED       # heiss
+        else:
+            tcol = awtrix.WHITE
+        apps["temp"] = awtrix.build_metric_app(
+            f"{round(temp)}°C", tcol, icon="temp", scroll=False
+        )
 
     # --- Persoenliche Zeile: Herz + "I LOVE YOU" ----------------------------
     apps["love"] = awtrix.build_metric_app("I LOVE YOU FOREVER", awtrix.IG_PINK, icon="heart")
