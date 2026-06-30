@@ -1,0 +1,46 @@
+# XcodeGen-Spezifikation -> erzeugt AwtrixMirror.xcodeproj.
+#   brew install xcodegen   (einmalig)
+#   cd ios && xcodegen generate
+# Danach AwtrixMirror.xcodeproj in Xcode oeffnen, Signing-Team setzen, bauen.
+name: AwtrixMirror
+options:
+  bundleIdPrefix: com.betterwithanna
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    # >>> Hier deine Apple-Team-ID eintragen (Xcode: Signing & Capabilities). <<<
+    # DEVELOPMENT_TEAM: ABCDE12345
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  AwtrixMirror:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/App
+      - path: Sources/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.betterwithanna.awtrixmirror
+        INFOPLIST_FILE: Sources/App/Info.plist
+        ENABLE_PREVIEWS: "YES"
+    dependencies:
+      - target: AwtrixWidgetExtension
+
+  AwtrixWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Sources/Widget
+      - path: Sources/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.betterwithanna.awtrixmirror.widget
+        INFOPLIST_FILE: Sources/Widget/Info.plist
+        ENABLE_PREVIEWS: "YES"

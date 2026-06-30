@@ -1,0 +1,8 @@
+# Von XcodeGen generiert -- nicht einchecken:
+*.xcodeproj/
+# Xcode/Build-Artefakte:
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.DS_Store

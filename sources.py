@@ -183,6 +183,53 @@ def _daily_delta(key, current):
         return None
 
 
+def set_snapshot(payload):
+    """Schreibt das Widget-JSON in den Supabase-Spiegel (RPC awtrix_set_snapshot).
+
+    ``payload`` = dict mit den aktuell angezeigten Kennzahlen. Wird vom iOS-Widget
+    per anon/publishable Key gelesen. Braucht den Schreib-Token (REVENUE_TOKEN);
+    ohne ihn passiert nichts. Fehler werden nur geloggt (Beiwerk, kippt nichts).
+    """
+    if not (config.SUPABASE_URL and config.SUPABASE_KEY and config.REVENUE_TOKEN):
+        return
+    try:
+        resp = requests.post(
+            f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_set_snapshot",
+            headers={
+                "apikey": config.SUPABASE_KEY,
+                "Authorization": f"Bearer {config.SUPABASE_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={"p_data": payload, "p_token": config.REVENUE_TOKEN},
+            timeout=20,
+        )
+        resp.raise_for_status()
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        log.warning("set_snapshot (Supabase) fehlgeschlagen: %s", exc)
+
+
+def get_snapshot():
+    """Liest das Widget-JSON aus dem Supabase-Spiegel (RPC awtrix_get_snapshot)."""
+    if not (config.SUPABASE_URL and config.SUPABASE_KEY):
+        return None
+    try:
+        resp = requests.post(
+            f"{config.SUPABASE_URL}/rest/v1/rpc/awtrix_get_snapshot",
+            headers={
+                "apikey": config.SUPABASE_KEY,
+                "Authorization": f"Bearer {config.SUPABASE_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        log.warning("get_snapshot (Supabase) fehlgeschlagen: %s", exc)
+        return None
+
+
 def get_follower_delta(current):
     """Follower-Zuwachs seit Tagesbeginn."""
     return _daily_delta("ig_followers", current)

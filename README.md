@@ -193,7 +193,17 @@ die Fehlerbehandlung (abgelaufener Token, Rate-Limit, Reichweite nicht abrufbar)
 
 ---
 
-## 7. Später: Einnahmen-App
+## 7. iOS-Widget (iPhone)
+Ein natives **WidgetKit**-Widget spiegelt Follower (+Zuwachs), das 100k-Ziel und
+Einnahmen+Krypto auf den iPhone-Home-/Sperrbildschirm. `main.py` schreibt dazu bei
+jedem Lauf einen JSON-**Snapshot** nach Supabase (`sources.set_snapshot` → RPC
+`awtrix_set_snapshot`), den das Widget per anon-Key liest (`awtrix_get_snapshot`).
+
+- SQL einmalig einspielen: `deploy/supabase_widget.sql` (legt Tabelle + RPCs an,
+  Schreib-Token = derselbe Wert wie `REVENUE_TOKEN`).
+- App bauen (braucht **Mac + Xcode**): siehe **`ios/README.md`**.
+
+## 8. Später: Einnahmen-App
 Die Architektur ist auf eine zweite App `revenue` vorbereitet:
 `awtrix.build_revenue_app()` existiert bereits, und in `main.py` ist die Einbindung als
 Kommentar markiert. Sobald die Einnahmen-Quelle (URL/Datei/Anbieter) feststeht, nur die

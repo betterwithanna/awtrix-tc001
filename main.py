@@ -93,6 +93,7 @@ def main():
     log = logging.getLogger("main")
     _apply_brightness(log)
     apps = {}
+    snapshot = {}          # Spiegel der angezeigten Werte fuer das iOS-Widget
     follower_delta = None  # fuer den +100-Follower-Ton nach dem Push
 
     # --- Instagram: Follower(+Zuwachs) & Reach(+Vortagsvergleich), je EIN Feld ---
@@ -103,6 +104,8 @@ def main():
 
         # Follower-Zahl (pink) + Tageszuwachs (gruen) in einem Feld
         follower_delta = sources.get_follower_delta(followers)
+        snapshot["followers"] = followers
+        snapshot["follower_delta"] = follower_delta
         frags = [(awtrix.format_number(followers), awtrix.IG_PINK)]
         frag = _delta_fragment(follower_delta)
         if frag:
@@ -119,11 +122,14 @@ def main():
         # Ziel 100k: fehlende Follower (lime) + Prognose-Datum (gruen).
         # Datum = heute + fehlend / Schnitt-Zuwachs der letzten 15 Tage.
         missing = GOAL_FOLLOWERS - followers
+        snapshot["goal_target"] = GOAL_FOLLOWERS
+        snapshot["goal_missing"] = missing
         if missing > 0:
             gfrags = [(f"100k -{awtrix.format_number(missing)}", awtrix.HOME_LIME)]
             avg = instagram.get_follower_avg_per_day(15)
             if avg and avg > 0:
                 eta = dt.date.today() + dt.timedelta(days=round(missing / avg))
+                snapshot["goal_eta"] = eta.isoformat()
                 gfrags.append((f" ~{eta.strftime('%d.%m.%y')}", awtrix.GROWTH_GREEN))
             apps["goal"] = awtrix.build_combo_app(gfrags, icon="ig")
         else:
@@ -152,6 +158,7 @@ def main():
     # Heutiger Live-Wert direkt -- ein 0 am Morgen ist gewollt (kein Vortag).
     rev = sources.get_revenue_today()
     if rev is not None:
+        snapshot["revenue_today"] = rev
         # Kein Icon -- Text "X EUR" ist eindeutig genug.
         apps["revenue"] = awtrix.build_revenue_app(rev)
 
@@ -161,6 +168,9 @@ def main():
     port = crypto.get_portfolio()
     if port is not None:
         total, pct, eur = port
+        snapshot["crypto_total"] = round(total, 2)
+        snapshot["crypto_pct"] = round(pct, 2)
+        snapshot["crypto_eur"] = round(eur, 2)
         color = awtrix.GROWTH_GREEN if pct >= 0 else awtrix.DROP_RED
         cfrags = [
             (f"{awtrix.format_number(total)} {config.EUR_SIGN}", awtrix.HOME_LIME),
@@ -213,6 +223,14 @@ def main():
         apps["lastpost"] = awtrix.build_combo_app(frags, icon="ig")
     else:
         awtrix.remove_app("lastpost")
+
+    # --- Spiegel fuer das iOS-Widget (Supabase) -----------------------------
+    # Schreibt die aktuell angezeigten Kennzahlen als ein JSON-Dokument, das die
+    # native WidgetKit-App (ios/) per anon-Key liest. VOR dem Uhr-Push, damit das
+    # Widget auch dann frisch bleibt, wenn die Uhr gerade nicht erreichbar ist.
+    # Fehler kippen den Lauf nicht -- set_snapshot loggt nur.
+    snapshot["currency"] = config.EUR_SIGN
+    sources.set_snapshot(snapshot)
 
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")
