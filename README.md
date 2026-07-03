@@ -201,7 +201,10 @@ jedem Lauf einen JSON-**Snapshot** nach Supabase (`sources.set_snapshot` → RPC
 
 - SQL einmalig einspielen: `deploy/supabase_widget.sql` (legt Tabelle + RPCs an,
   Schreib-Token = derselbe Wert wie `REVENUE_TOKEN`).
-- App bauen (braucht **Mac + Xcode**): siehe **`ios/README.md`**.
+- Zwei Wege fuer die Anzeige (gleiche Datenquelle):
+  - **Scriptable** (empfohlen, **kein Mac**): JS-Skript in die App einfuegen —
+    siehe **`scriptable/README.md`**.
+  - **Nativ (Swift/WidgetKit)**, braucht **Mac + Xcode**: siehe **`ios/README.md`**.
 
 ## 8. Später: Einnahmen-App
 Die Architektur ist auf eine zweite App `revenue` vorbereitet:

@@ -31,8 +31,9 @@ Ein natives Widget lässt sich **nur auf einem Mac mit Xcode bauen**:
 - **XcodeGen** (`brew install xcodegen`) — erzeugt das Xcode-Projekt aus `project.yml`.
 
 > Kein Mac? Dann ist dieses Verzeichnis für dich nicht nutzbar — der Code ist
-> fertig, aber das Bauen/Installieren geht nur über Xcode. Eine Mac-freie
-> Alternative wäre die App **Scriptable** gewesen (sag Bescheid, dann baue ich die).
+> fertig, aber das Bauen/Installieren geht nur über Xcode. Nutze stattdessen die
+> **Mac-freie Variante** unter [`../scriptable/`](../scriptable/) (App *Scriptable*,
+> JS-Skript einfügen). Beide lesen denselben Supabase-Snapshot.
 
 ---
 
