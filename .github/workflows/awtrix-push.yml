@@ -13,9 +13,11 @@ name: AWTRIX Instagram Push
 # im Heim-WLAN nicht. Cron laeuft nur auf dem Default-Branch.
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"      # alle 15 Minuten (Zeiten in UTC)
-  workflow_dispatch: {}          # manueller Start-Button im Actions-Tab
+  # Getaktet wird extern via cron-job.org (workflow_dispatch, alle ~10 Min) --
+  # zuverlaessiger als der GitHub-eigene schedule-Cron. Der schedule wurde
+  # ENTFERNT: er kollidierte mit den Dispatch-Laeufen in der concurrency-Group
+  # und wurde gecancelt -> "Run cancelled"-Mails. Dispatch allein reicht.
+  workflow_dispatch: {}          # manueller Start-Button + cron-job.org
 
 concurrency:
   group: awtrix-push
