@@ -27,13 +27,23 @@ import requests
 
 log = logging.getLogger(__name__)
 
-# Bestand: Menge + insgesamt investierte EUR (Kostenbasis, Summe aller Kaeufe).
-# Bei neuem Kauf: amount += Menge, cost_eur += Menge * Kaufpreis.
-# cost_eur=None -> Kaufpreis noch nicht hinterlegt; die Seit-Kauf-Rendite wird
-# dann ausgelassen (die Uhr zeigt weiterhin Wert + Tagesaenderung).
+# Bestand: Menge + netto in EUR investiert (Kostenbasis = Kaeufe inkl. Gebuehren
+# minus zurueckerhaltene Verkaufserloese). Die Seit-Kauf-Rendite = Wert - cost_eur
+# enthaelt damit sowohl realisierte Gewinne als auch die gratis erhaltenen
+# Staking-Rewards. Bei neuem Kauf: amount += Menge, cost_eur += Menge*Preis + Gebuehr.
+# Quelle: Revolut Crypto Account Statement, Stand 12.07.2026.
 HOLDINGS = {
-    "bitcoin": {"amount": 0.04932662, "cost_eur": None},
-    "solana": {"amount": 45.46, "cost_eur": None},
+    # BTC netto investiert:
+    #   Kauf 30.03.: 2000.00 + 49.79 = 2049.79
+    #   Kauf 03.06.: 1250.00 + 21.12 = 1271.12
+    #   Verkaeufe (netto): -(183.02 + 70.02 + 28.02) = -281.06
+    #   => 3039.85
+    "bitcoin": {"amount": 0.04932662, "cost_eur": 3039.85},
+    # SOL netto investiert (keine Verkaeufe; Staking-Rewards kostenlos):
+    #   Kauf 30.03.: 2000.00 + 46.24 = 2046.24
+    #   Kauf 03.06.: 1250.00 + 31.11 = 1281.11
+    #   => 3327.35 ; Menge inkl. bisher gutgeschriebener Staking-Rewards.
+    "solana": {"amount": 45.555109, "cost_eur": 3327.35},
 }
 
 _URL = "https://api.coingecko.com/api/v3/simple/price"
