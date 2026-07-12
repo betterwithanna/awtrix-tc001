@@ -160,13 +160,19 @@ def main():
     # (gruen/rot). BTC-Icon. Preise live von CoinGecko.
     port = crypto.get_portfolio()
     if port is not None:
-        total, pct, eur = port
-        color = awtrix.GROWTH_GREEN if pct >= 0 else awtrix.DROP_RED
+        day_color = awtrix.GROWTH_GREEN if port.day_pct >= 0 else awtrix.DROP_RED
         cfrags = [
-            (f"{awtrix.format_number(total)} {config.EUR_SIGN}", awtrix.HOME_LIME),
-            (f" {pct:+.1f}%", color),
-            (f" {eur:+.0f}{config.EUR_SIGN}", color),
+            (f"{awtrix.format_number(port.total)} {config.EUR_SIGN}", awtrix.HOME_LIME),
+            (f" {port.day_pct:+.1f}%", day_color),
+            (f" {port.day_eur:+.0f}{config.EUR_SIGN}", day_color),
         ]
+        # Seit-Kauf-Rendite (Gewinn/Verlust vs. Kostenbasis), sofern Kaufpreise
+        # hinterlegt sind. Durch ' / ' vom Tageswert getrennt.
+        if port.pl_eur is not None:
+            pl_color = awtrix.GROWTH_GREEN if port.pl_pct >= 0 else awtrix.DROP_RED
+            cfrags.append((" / ", awtrix.WHITE))
+            cfrags.append((f"{port.pl_eur:+.0f}{config.EUR_SIGN}", pl_color))
+            cfrags.append((f" {port.pl_pct:+.1f}%", pl_color))
         apps["crypto"] = awtrix.build_combo_app(cfrags, icon="btc")
 
     # --- Aussentemperatur (Kirchstetterngasse 7, 1160 Wien) -----------------
