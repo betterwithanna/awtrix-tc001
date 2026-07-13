@@ -155,7 +155,7 @@ def main():
         # Kein Icon -- Text "X EUR" ist eindeutig genug.
         apps["revenue"] = awtrix.build_revenue_app(rev)
 
-    # --- Krypto-Portfolio (BTC+SOL) in EUR + Tagesveraenderung --------------
+    # --- Krypto-Portfolio (BTC+SOL+PEPE) in EUR + Tagesveraenderung ---------
     # Direkt NACH den Einnahmen. Gesamtwert (lime) + Tages-% und Tages-EUR
     # (gruen/rot). BTC-Icon. Preise live von CoinGecko.
     port = crypto.get_portfolio()

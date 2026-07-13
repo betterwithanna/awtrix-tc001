@@ -1,4 +1,4 @@
-"""Krypto-Portfolio (BTC + SOL): Live-Wert in EUR via CoinGecko (kostenlos, kein Key).
+"""Krypto-Portfolio (BTC + SOL + PEPE): Live-Wert in EUR via CoinGecko (kostenlos, kein Key).
 
 Jeder Bestand haelt die Menge (``amount``) UND die insgesamt investierte Summe
 in EUR (``cost_eur`` = Kostenbasis, Summe aller Kaeufe). Bei einem neuen Kauf
@@ -37,13 +37,19 @@ HOLDINGS = {
     #   Kauf 30.03.: 2000.00 + 49.79 = 2049.79
     #   Kauf 03.06.: 1250.00 + 21.12 = 1271.12
     #   Verkaeufe (netto): -(183.02 + 70.02 + 28.02) = -281.06
-    #   => 3039.85
-    "bitcoin": {"amount": 0.04932662, "cost_eur": 3039.85},
+    #   Receive 13.07.: +0.04376399 BTC = 2437.60
+    #   => 5477.45
+    "bitcoin": {"amount": 0.09309061, "cost_eur": 5477.45},
     # SOL netto investiert (keine Verkaeufe; Staking-Rewards kostenlos):
     #   Kauf 30.03.: 2000.00 + 46.24 = 2046.24
     #   Kauf 03.06.: 1250.00 + 31.11 = 1281.11
-    #   => 3327.35 ; Menge inkl. bisher gutgeschriebener Staking-Rewards.
-    "solana": {"amount": 45.555109, "cost_eur": 3327.35},
+    #   Receive 13.07.: +35.961572 SOL = 2437.65
+    #   => 5765.00 ; Menge inkl. Staking-Rewards. Seit 13.07. ist der GESAMTE
+    #   SOL-Bestand gestakt (~6.24% APY) -> Menge waechst durch Rewards weiter.
+    "solana": {"amount": 81.524451, "cost_eur": 5765.00},
+    # PEPE (Memecoin, hochspekulativ):
+    #   Receive 13.07.: 405,529,868.1386 PEPE = 984.91
+    "pepe": {"amount": 405529868.1386, "cost_eur": 984.91},
 }
 
 _URL = "https://api.coingecko.com/api/v3/simple/price"
