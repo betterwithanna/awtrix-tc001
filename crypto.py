@@ -48,7 +48,10 @@ HOLDINGS = {
     #   SOL-Bestand gestakt (~6.24% APY) -> Menge waechst durch Rewards weiter.
     #   Kauf 29.07.: +15.010206 SOL fuer 1000.00 (inkl. 24.90 Gebuehr)
     #   => 81.524451 + 15.010206 = 96.534657 ; 5765.00 + 1000.00 = 6765.00
-    "solana": {"amount": 96.534657, "cost_eur": 6765.00},
+    #   Receive 01.08.: +15.097 (954.47) + 0.48 (30.45) + 0.34 (21.45)
+    #     = +15.917 SOL / +1006.37 EUR
+    #   => 96.534657 + 15.917 = 112.451657 ; 6765.00 + 1006.37 = 7771.37
+    "solana": {"amount": 112.451657, "cost_eur": 7771.37},
     # PEPE (Memecoin, hochspekulativ):
     #   Receive 13.07.: 405,529,868.1386 PEPE = 984.91
     "pepe": {"amount": 405529868.1386, "cost_eur": 984.91},
