@@ -19,6 +19,7 @@ import chime
 import config
 import crypto
 import instagram
+import milestone
 import sources
 import weather
 
@@ -94,11 +95,13 @@ def main():
     _apply_brightness(log)
     apps = {}
     follower_delta = None  # fuer den +100-Follower-Ton nach dem Push
+    followers_now = None   # fuer die 100k-Feier
 
     # --- Instagram: Follower(+Zuwachs) & Reach(+Vortagsvergleich), je EIN Feld ---
     try:
         stats = instagram.get_stats()
         followers = stats.get("followers", 0)
+        followers_now = followers
         reach = stats.get("reach", 0)
 
         # Follower-Zahl (pink) + Tageszuwachs (gruen) in einem Feld
@@ -132,6 +135,12 @@ def main():
         log.error("Instagram-Token abgelaufen (refresh-token-Workflow erneuert ihn): %s", exc)
     except (instagram.InstagramError, RuntimeError) as exc:
         log.error("Instagram-Abruf fehlgeschlagen: %s", exc)
+
+    # --- 100k-Follower-Feier (Blast beim Ueberschreiten, dann Party/Badge) ---
+    try:
+        milestone.handle(followers_now, apps)
+    except Exception as exc:  # noqa: BLE001 -- Feier darf den Push nicht kippen
+        log.warning("Milestone-Feier fehlgeschlagen: %s", exc)
 
     # --- Mailing-Zahl (blau) + neue Kontakte heute (gruen) ------------------
     mailing = sources.get_mailing_count()
