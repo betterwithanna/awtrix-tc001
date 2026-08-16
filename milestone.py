@@ -5,7 +5,8 @@ Ablauf beim Ueberschreiten von 100.000 Followern (Owner-Wahl):
   (feuert sofort, zu JEDER Uhrzeit -- once in a lifetime).
 * danach 3 Stunden PARTY-MODUS: goldenes Feier-Feld im Loop (nur visuell,
   KEIN wiederholter Ton).
-* danach dauerhaftes STERN-BADGE "100.000" im Loop.
+* danach zurueck zum normalen Loop -- KEIN dauerhaftes Badge (Owner-Wunsch:
+  nur die Feier, nichts Bleibendes).
 
 Zustand in Supabase (ADD-only Key ``milestone_100k_ts`` = Unix-Sekunden des
 Ueberschreitens) -> loest genau EINMAL aus. Vorschau/Test: Env ``MILESTONE_TEST=1``
@@ -67,10 +68,6 @@ def _party_app():
     return awtrix.build_combo_app([(_PARTY_TEXT, GOLD)], icon="party", duration=10)
 
 
-def _trophy_app():
-    return awtrix.build_metric_app("100.000", GOLD, icon="trophy", scroll=False)
-
-
 def handle(followers, apps):
     """Feier-Logik. Fuegt ggf. Party-/Badge-Feld zu ``apps`` hinzu, feuert den Blast.
 
@@ -92,8 +89,10 @@ def handle(followers, apps):
             apps["party"] = _party_app()
         return
 
-    # Schon ueberschritten: 3h Party, danach dauerhaftes Badge.
+    # Schon ueberschritten: 3h Party, danach zurueck zum normalen Loop
+    # (KEIN dauerhaftes Badge -- Owner-Wunsch: nur die Feier, nichts Bleibendes).
     if _now() - ts < PARTY_SECS:
         apps["party"] = _party_app()
     else:
-        apps["trophy"] = _trophy_app()
+        awtrix.remove_app("party")
+        awtrix.remove_app("trophy")

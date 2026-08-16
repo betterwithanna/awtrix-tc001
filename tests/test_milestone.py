@@ -6,6 +6,7 @@ class Rec:
     def __init__(self):
         self.writes = {}
         self.blasts = 0
+        self.removed = []
 
 
 def _patch(monkeypatch, rec, stored, test_env=False):
@@ -14,6 +15,8 @@ def _patch(monkeypatch, rec, stored, test_env=False):
                         lambda k, v: rec.writes.__setitem__(k, v))
     monkeypatch.setattr(milestone.awtrix, "notify",
                         lambda payload: setattr(rec, "blasts", rec.blasts + 1))
+    monkeypatch.setattr(milestone.awtrix, "remove_app",
+                        lambda name: rec.removed.append(name))
     monkeypatch.setattr(milestone, "_now", lambda: 1_000_000.0)
     monkeypatch.setenv("MILESTONE_TEST", "1") if test_env else \
         monkeypatch.delenv("MILESTONE_TEST", raising=False)
@@ -46,13 +49,14 @@ def test_already_crossed_party_within_3h(monkeypatch):
     assert rec.blasts == 0 and "party" in apps and "trophy" not in apps
 
 
-def test_after_3h_shows_trophy(monkeypatch):
+def test_after_3h_reverts_to_normal(monkeypatch):
     rec = Rec()
-    # vor 4h ueberschritten -> Badge statt Party
+    # vor 4h ueberschritten -> Party vorbei, KEIN dauerhaftes Badge, Felder weg
     _patch(monkeypatch, rec, stored={milestone._STATE: 1_000_000.0 - 4 * 3600})
     apps = {}
     milestone.handle(100_050, apps)
-    assert rec.blasts == 0 and "trophy" in apps and "party" not in apps
+    assert rec.blasts == 0 and apps == {}
+    assert set(rec.removed) == {"party", "trophy"}
 
 
 def test_crossing_fires_once(monkeypatch):
