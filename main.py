@@ -21,6 +21,7 @@ import crypto
 import instagram
 import milestone
 import sources
+import stocks
 import weather
 
 _VIENNA = ZoneInfo("Europe/Vienna")
@@ -183,6 +184,22 @@ def main():
             cfrags.append((f"{port.pl_eur:+.0f}{config.EUR_SIGN}", pl_color))
             cfrags.append((f" {port.pl_pct:+.1f}%", pl_color))
         apps["crypto"] = awtrix.build_combo_app(cfrags, icon="btc")
+
+    # --- Aktien-Portfolio (Moderna/MRNA) in USD, SEPARAT von Krypto ---------
+    # Eigenes Feld direkt nach Krypto. USD (Kaufwaehrung), kein FX-Umrechnen.
+    sp = stocks.get_portfolio()
+    if sp is not None:
+        sday_color = awtrix.GROWTH_GREEN if sp.day_pct >= 0 else awtrix.DROP_RED
+        spl_color = awtrix.GROWTH_GREEN if sp.pl_pct >= 0 else awtrix.DROP_RED
+        sfrags = [
+            (f"${awtrix.format_number(sp.total)}", awtrix.HOME_LIME),
+            (f" {sp.day_pct:+.1f}%", sday_color),
+            (f" {sp.day_usd:+.0f}$", sday_color),
+            (" / ", awtrix.WHITE),
+            (f"{sp.pl_usd:+.0f}$", spl_color),
+            (f" {sp.pl_pct:+.1f}%", spl_color),
+        ]
+        apps["stocks"] = awtrix.build_combo_app(sfrags, icon="stock")
 
     # --- Aussentemperatur (Kirchstetterngasse 7, 1160 Wien) -----------------
     temp = weather.get_temperature()
