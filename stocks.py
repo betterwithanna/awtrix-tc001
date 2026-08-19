@@ -28,9 +28,11 @@ log = logging.getLogger(__name__)
 #   verkaufte Menge = 15.25912549 ; realisierter Gewinn = 552.60 USD
 #   Kostenbasis anteilig (Durchschnittspreis 117.80/Stk.) mitverkauft:
 #     1797.52 USD -> Rest-Kostenbasis = 2320.00 - 1797.52 = 522.48
-# => amount 19.69439728 - 15.25912549 = 4.43527179 ; cost_usd = 522.48
+# Owner-Bestaetigung (Broker-Anzeige) 20.08.2026: exakt 4.4428911388 gehalten
+# (kleine Abweichung zur Berechnung 4.43527179 -- vermutlich Rundung/Gebuehr
+# beim Broker). Kostenbasis unveraendert bei 522.48.
 HOLDINGS = {
-    "MRNA": {"amount": 4.43527179, "cost_usd": 522.48},
+    "MRNA": {"amount": 4.4428911388, "cost_usd": 522.48},
 }
 
 _URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
