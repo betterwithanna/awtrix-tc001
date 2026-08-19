@@ -23,8 +23,14 @@ import requests
 log = logging.getLogger(__name__)
 
 # Kauf 20.08.2026: 19.69439728 MRNA @ 117.80 USD = 2320.00 USD.
+# Verkauf 20.08.2026 (Kapital teilweise entnommen, Rest bleibt investiert):
+#   15.06852232 @ 153.97 + 0.19060317 @ 157.50 = 2350.12 USD Erloes
+#   verkaufte Menge = 15.25912549 ; realisierter Gewinn = 552.60 USD
+#   Kostenbasis anteilig (Durchschnittspreis 117.80/Stk.) mitverkauft:
+#     1797.52 USD -> Rest-Kostenbasis = 2320.00 - 1797.52 = 522.48
+# => amount 19.69439728 - 15.25912549 = 4.43527179 ; cost_usd = 522.48
 HOLDINGS = {
-    "MRNA": {"amount": 19.69439728, "cost_usd": 2320.00},
+    "MRNA": {"amount": 4.43527179, "cost_usd": 522.48},
 }
 
 _URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
