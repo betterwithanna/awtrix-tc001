@@ -31,9 +31,9 @@ log = logging.getLogger(__name__)
 # Owner-Bestaetigung (Broker-Anzeige) 20.08.2026: exakt 4.4428911388 gehalten
 # (kleine Abweichung zur Berechnung 4.43527179 -- vermutlich Rundung/Gebuehr
 # beim Broker). Kostenbasis unveraendert bei 522.48.
-HOLDINGS = {
-    "MRNA": {"amount": 4.4428911388, "cost_usd": 522.48},
-}
+# Rest-Position komplett verkauft (20.08.2026) -> keine Aktien mehr gehalten.
+# HOLDINGS leer -> get_portfolio() liefert None -> main.py entfernt das Feld.
+HOLDINGS = {}
 
 _URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
 _HEADERS = {"User-Agent": "Mozilla/5.0"}

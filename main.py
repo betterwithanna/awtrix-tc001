@@ -200,6 +200,8 @@ def main():
             (f" {sp.pl_pct:+.1f}%", spl_color),
         ]
         apps["stocks"] = awtrix.build_combo_app(sfrags, icon="stock")
+    else:
+        awtrix.remove_app("stocks")  # keine Position mehr -> Feld aktiv weg (retain)
 
     # --- Aussentemperatur (Kirchstetterngasse 7, 1160 Wien) -----------------
     temp = weather.get_temperature()
