@@ -183,7 +183,11 @@ def main():
             cfrags.append((" / ", awtrix.WHITE))
             cfrags.append((f"{port.pl_eur:+.0f}{config.EUR_SIGN}", pl_color))
             cfrags.append((f" {port.pl_pct:+.1f}%", pl_color))
+        # Owner-Wunsch: Krypto soll 2x im Loop erscheinen statt nur 1x.
         apps["crypto"] = awtrix.build_combo_app(cfrags, icon="btc")
+        apps["crypto2"] = awtrix.build_combo_app(cfrags, icon="btc")
+    else:
+        awtrix.remove_app("crypto2")
 
     # --- Aktien-Portfolio (Moderna/MRNA) in USD, SEPARAT von Krypto ---------
     # Eigenes Feld direkt nach Krypto. USD (Kaufwaehrung), kein FX-Umrechnen.
