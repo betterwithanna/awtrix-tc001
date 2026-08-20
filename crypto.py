@@ -54,7 +54,9 @@ HOLDINGS = {
     "solana": {"amount": 112.451657, "cost_eur": 7771.37},
     # PEPE (Memecoin, hochspekulativ):
     #   Receive 13.07.: 405,529,868.1386 PEPE = 984.91
-    "pepe": {"amount": 405529868.1386, "cost_eur": 984.91},
+    #   Kauf 20.08.: +355,094,190.0067 PEPE fuer 1000.00 EUR
+    #   => 405529868.1386 + 355094190.0067 = 760624058.1453 ; 984.91 + 1000.00 = 1984.91
+    "pepe": {"amount": 760624058.1453, "cost_eur": 1984.91},
 }
 
 _URL = "https://api.coingecko.com/api/v3/simple/price"
