@@ -20,6 +20,7 @@ import config
 import crypto
 import instagram
 import milestone
+import smallcap
 import sources
 import stocks
 import weather
@@ -206,6 +207,25 @@ def main():
         apps["stocks"] = awtrix.build_combo_app(sfrags, icon="stock")
     else:
         awtrix.remove_app("stocks")  # keine Position mehr -> Feld aktiv weg (retain)
+
+    # --- SmallCap-Portfolio (TROLL+Buttcoin) in EUR, SEPARAT von Krypto+Aktien -
+    # Eigenes Feld, bewusst nicht mit BTC/SOL/PEPE vermischt.
+    scp = smallcap.get_portfolio()
+    if scp is not None:
+        scday_color = awtrix.GROWTH_GREEN if scp.day_pct >= 0 else awtrix.DROP_RED
+        scpl_color = awtrix.GROWTH_GREEN if scp.pl_pct >= 0 else awtrix.DROP_RED
+        scfrags = [
+            ("SmallCap ", awtrix.WHITE),
+            (f"{awtrix.format_number(scp.total)}{config.EUR_SIGN}", awtrix.HOME_LIME),
+            (f" {scp.day_pct:+.1f}%", scday_color),
+            (f" {scp.day_eur:+.0f}{config.EUR_SIGN}", scday_color),
+            (" / ", awtrix.WHITE),
+            (f"{scp.pl_eur:+.0f}{config.EUR_SIGN}", scpl_color),
+            (f" {scp.pl_pct:+.1f}%", scpl_color),
+        ]
+        apps["smallcap"] = awtrix.build_combo_app(scfrags, icon="smallcap")
+    else:
+        awtrix.remove_app("smallcap")
 
     # --- Aussentemperatur (Kirchstetterngasse 7, 1160 Wien) -----------------
     temp = weather.get_temperature()
