@@ -21,14 +21,15 @@ import requests
 
 log = logging.getLogger(__name__)
 
-# Kauf 20.08.2026 (Phantom-Wallet-Screenshot): Kostenbasis = Wert zum Kaufzeitpunkt
-# (Owner: "just bought", Kostenbasis = damaliger EUR-Wert).
-#   TROLL:    11,264.4069 Stk. -> 473.44 EUR
-#   Buttcoin: 50,340.66934 Stk. -> 482.56 EUR
+# Kauf 20.08.2026 (Phantom-Wallet-Screenshot). Owner-Korrektur: Kostenbasis
+# = 1000 EUR insgesamt eingesetzt, gleichmaessig auf beide verteilt (500/500) --
+# der reine Token-Wert beim Kauf lag darunter, Differenz = Kauf-Gebuehren.
+#   TROLL:    11,264.4069 Stk.   -> 500.00 EUR
+#   Buttcoin: 50,340.66934 Stk.  -> 500.00 EUR
 # CoinGecko-IDs per Preis-Abgleich verifiziert (Ziel ~0.049 / ~0.0109 USD/Stk.).
 HOLDINGS = {
-    "troll-2": {"amount": 11264.4069, "cost_eur": 473.44},
-    "buttcoin-7": {"amount": 50340.66934, "cost_eur": 482.56},
+    "troll-2": {"amount": 11264.4069, "cost_eur": 500.00},
+    "buttcoin-7": {"amount": 50340.66934, "cost_eur": 500.00},
 }
 
 _URL = "https://api.coingecko.com/api/v3/simple/price"
