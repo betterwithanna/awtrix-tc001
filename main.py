@@ -272,6 +272,30 @@ def main():
     else:
         awtrix.remove_app("lastpost")
 
+    # --- Gesamt-Profit: Krypto + SmallCap zusammen, als LETZTE Zeile im Loop -
+    # Owner-Wunsch: eine konsolidierte "seit Kauf"-Gewinnzeile ueber alle
+    # Portfolios (Aktien zaehlt nicht mehr mit -- Position komplett verkauft).
+    profit_eur = profit_cost = 0.0
+    profit_known = False
+    if port is not None and port.pl_eur is not None:
+        profit_eur += port.pl_eur
+        profit_cost += port.cost
+        profit_known = True
+    if scp is not None:
+        profit_eur += scp.pl_eur
+        profit_cost += scp.cost
+        profit_known = True
+    if profit_known and profit_cost > 0:
+        profit_pct = profit_eur / profit_cost * 100
+        profit_color = awtrix.GROWTH_GREEN if profit_eur >= 0 else awtrix.DROP_RED
+        apps["profit"] = awtrix.build_combo_app([
+            ("Profit ", awtrix.WHITE),
+            (f"{profit_eur:+.0f}{config.EUR_SIGN}", profit_color),
+            (f" {profit_pct:+.1f}%", profit_color),
+        ], icon="btc")
+    else:
+        awtrix.remove_app("profit")
+
     if not apps:
         log.error("Keine Kennzahlen verfuegbar -- nichts zu senden.")
         return 1

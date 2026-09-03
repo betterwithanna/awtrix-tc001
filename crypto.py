@@ -39,7 +39,9 @@ HOLDINGS = {
     #   Verkaeufe (netto): -(183.02 + 70.02 + 28.02) = -281.06
     #   Receive 13.07.: +0.04376399 BTC = 2437.60
     #   => 5477.45
-    "bitcoin": {"amount": 0.09309061, "cost_eur": 5477.45},
+    #   Verkauf 02.09.: -0.01481888 BTC, Netto-Erloes 946.00 (969.56 - 23.56 Gebuehr)
+    #   => 0.09309061 - 0.01481888 = 0.07827173 ; 5477.45 - 946.00 = 4531.45
+    "bitcoin": {"amount": 0.07827173, "cost_eur": 4531.45},
     # SOL netto investiert (keine Verkaeufe; Staking-Rewards kostenlos):
     #   Kauf 30.03.: 2000.00 + 46.24 = 2046.24
     #   Kauf 03.06.: 1250.00 + 31.11 = 1281.11
@@ -56,7 +58,9 @@ HOLDINGS = {
     #   Receive 13.07.: 405,529,868.1386 PEPE = 984.91
     #   Kauf 20.08.: +355,094,190.0067 PEPE fuer 1000.00 EUR
     #   => 405529868.1386 + 355094190.0067 = 760624058.1453 ; 984.91 + 1000.00 = 1984.91
-    "pepe": {"amount": 760624058.1453, "cost_eur": 1984.91},
+    #   Verkauf 02.09.: -110,514,509.3927 PEPE, Netto-Erloes 311.00 (318.74 - 7.73 Gebuehr)
+    #   => 760624058.1453 - 110514509.3927 = 650109548.7526 ; 1984.91 - 311.00 = 1673.91
+    "pepe": {"amount": 650109548.7526, "cost_eur": 1673.91},
 }
 
 _URL = "https://api.coingecko.com/api/v3/simple/price"
