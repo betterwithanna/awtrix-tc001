@@ -124,7 +124,10 @@ def get_metric(key):
             headers={"apikey": config.SUPABASE_KEY,
                      "Authorization": f"Bearer {config.SUPABASE_KEY}",
                      "Content-Type": "application/json"},
-            json={"p_key": key}, timeout=20,
+            # Mit Lese-Token (alle Schluessel); ohne Token liefert die DB nur
+            # Nicht-Einnahmen-Werte (z. B. milestone_100k_ts).
+            json={"p_key": key, "p_token": config.READ_TOKEN} if config.READ_TOKEN else {"p_key": key},
+            timeout=20,
         )
         resp.raise_for_status()
         value = resp.json()
