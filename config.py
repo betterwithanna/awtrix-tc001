@@ -84,6 +84,10 @@ YT_CHANNEL_ID = _get("YT_CHANNEL_ID")
 # Nur lokal noetig (tools/push_revenue.py); im Cloud-Job leer.
 REVENUE_TOKEN = _get("REVENUE_TOKEN")
 
+# Lese-Token fuer awtrix_get_metric (Einnahmen). Ohne ihn liefert die
+# Funktion seit 2026-10-26 nichts mehr (vorher war sie oeffentlich lesbar).
+READ_TOKEN = _get("AWTRIX_READ_TOKEN")
+
 
 def require(*names):
     """Stellt sicher, dass die genannten Pflichtfelder gesetzt sind.

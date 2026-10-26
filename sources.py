@@ -75,7 +75,7 @@ def get_revenue_yesterday():
                 "Authorization": f"Bearer {config.SUPABASE_KEY}",
                 "Content-Type": "application/json",
             },
-            json={"p_key": "revenue_eur_yesterday"},
+            json={"p_key": "revenue_eur_yesterday", "p_token": config.READ_TOKEN or ""},
             timeout=20,
         )
         resp.raise_for_status()
@@ -103,7 +103,7 @@ def get_revenue_today():
                 "Authorization": f"Bearer {config.SUPABASE_KEY}",
                 "Content-Type": "application/json",
             },
-            json={"p_key": "revenue_eur_today"},
+            json={"p_key": "revenue_eur_today", "p_token": config.READ_TOKEN or ""},
             timeout=20,
         )
         resp.raise_for_status()
