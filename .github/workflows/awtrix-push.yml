@@ -60,4 +60,6 @@ jobs:
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
           # Schreib-Token fuer die Tages-Kennzahlen (Follower-Zuwachs etc.):
           REVENUE_TOKEN: ${{ secrets.REVENUE_TOKEN }}
+          # Lese-Token fuer die Einnahmen (awtrix_get_metric):
+          AWTRIX_READ_TOKEN: ${{ secrets.AWTRIX_READ_TOKEN }}
         run: python main.py
