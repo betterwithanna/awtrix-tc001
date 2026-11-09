@@ -1,4 +1,4 @@
-"""Tests fuer die 100k-Feier (Supabase/notify gemockt)."""
+"""Tests fuer die 150k-Feier (Supabase/notify gemockt)."""
 import milestone
 
 
@@ -26,7 +26,7 @@ def test_below_goal_does_nothing(monkeypatch):
     rec = Rec()
     _patch(monkeypatch, rec, stored={})
     apps = {}
-    milestone.handle(99_906, apps)
+    milestone.handle(149_906, apps)
     assert rec.blasts == 0 and apps == {} and rec.writes == {}
 
 
@@ -34,7 +34,7 @@ def test_first_crossing_fires_blast_and_party(monkeypatch):
     rec = Rec()
     _patch(monkeypatch, rec, stored={})
     apps = {}
-    milestone.handle(100_001, apps)
+    milestone.handle(150_001, apps)
     assert rec.blasts == milestone.REPEAT  # Blast spielt 4x
     assert "party" in apps
     assert rec.writes[milestone._STATE] == 1_000_000.0  # Zustand gemerkt
@@ -45,7 +45,7 @@ def test_already_crossed_party_within_3h(monkeypatch):
     # vor 1h ueberschritten -> noch Party, kein neuer Blast
     _patch(monkeypatch, rec, stored={milestone._STATE: 1_000_000.0 - 3600})
     apps = {}
-    milestone.handle(100_050, apps)
+    milestone.handle(150_050, apps)
     assert rec.blasts == 0 and "party" in apps and "trophy" not in apps
 
 
@@ -54,7 +54,7 @@ def test_after_3h_reverts_to_normal(monkeypatch):
     # vor 4h ueberschritten -> Party vorbei, KEIN dauerhaftes Badge, Felder weg
     _patch(monkeypatch, rec, stored={milestone._STATE: 1_000_000.0 - 4 * 3600})
     apps = {}
-    milestone.handle(100_050, apps)
+    milestone.handle(150_050, apps)
     assert rec.blasts == 0 and apps == {}
     assert set(rec.removed) == {"party", "trophy"}
 
@@ -64,9 +64,9 @@ def test_crossing_fires_once(monkeypatch):
     stored = {}
     _patch(monkeypatch, rec, stored)
     apps = {}
-    milestone.handle(100_001, apps)          # erstes Mal -> Blast 4x
+    milestone.handle(150_001, apps)          # erstes Mal -> Blast 4x
     stored[milestone._STATE] = rec.writes[milestone._STATE]  # Zustand persistiert
-    milestone.handle(100_002, {})            # zweiter Lauf -> KEIN neuer Blast
+    milestone.handle(150_002, {})            # zweiter Lauf -> KEIN neuer Blast
     assert rec.blasts == milestone.REPEAT
 
 
@@ -82,6 +82,6 @@ def test_test_env_previews_without_state(monkeypatch):
     rec = Rec()
     _patch(monkeypatch, rec, stored={}, test_env=True)
     apps = {}
-    milestone.handle(50_000, apps)           # unter Ziel, aber Testmodus
+    milestone.handle(120_000, apps)           # unter Ziel, aber Testmodus
     assert rec.blasts == milestone.REPEAT and "party" in apps
     assert rec.writes == {}                   # KEIN echter Zustand gesetzt

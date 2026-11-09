@@ -1,6 +1,6 @@
-"""100k-Follower-Feier auf der Uhr.
+"""150k-Follower-Feier auf der Uhr (Nachfolger der 100k-Feier vom Sommer).
 
-Ablauf beim Ueberschreiten von 100.000 Followern (Owner-Wahl):
+Ablauf beim Ueberschreiten von 150.000 Followern (Owner-Wahl):
 * EINMALIGER Fanfaren-Blast: Regenbogen + Fanfare + Konfetti-Icon + Lauftext
   (feuert sofort, zu JEDER Uhrzeit -- once in a lifetime).
 * danach 3 Stunden PARTY-MODUS: goldenes Feier-Feld im Loop (nur visuell,
@@ -8,9 +8,10 @@ Ablauf beim Ueberschreiten von 100.000 Followern (Owner-Wahl):
 * danach zurueck zum normalen Loop -- KEIN dauerhaftes Badge (Owner-Wunsch:
   nur die Feier, nichts Bleibendes).
 
-Zustand in Supabase (ADD-only Key ``milestone_100k_ts`` = Unix-Sekunden des
-Ueberschreitens) -> loest genau EINMAL aus. Vorschau/Test: Env ``MILESTONE_TEST=1``
-feuert Blast + Party OHNE den echten Zustand zu setzen (wartet weiter auf 100k).
+Zustand in Supabase (ADD-only Key ``milestone_150k_ts`` = Unix-Sekunden des
+Ueberschreitens) -> loest genau EINMAL aus. Der alte 100k-Key bleibt gesetzt
+und stoert nicht. Vorschau/Test: Env ``MILESTONE_TEST=1`` feuert Blast +
+Party OHNE den echten Zustand zu setzen (wartet weiter auf 150k).
 
 Text bewusst in LATEIN (auch das RU "SPASIBO" transliteriert), weil der
 AWTRIX-Font kein Kyrillisch rendert.
@@ -24,20 +25,20 @@ import sources
 
 log = logging.getLogger(__name__)
 
-GOAL = 100_000
+GOAL = 150_000
 PARTY_SECS = 3 * 3600          # Party-Modus-Dauer nach dem Ueberschreiten
 REPEAT = 4                     # der Blast (Fanfare+Text) spielt 4x hintereinander
-_STATE = "milestone_100k_ts"   # Supabase-Key (Unix-Sek. des Ueberschreitens)
+_STATE = "milestone_150k_ts"   # Supabase-Key (Unix-Sek. des Ueberschreitens)
 
 # Triumphale Fanfare (RTTTL, Piezo): aufsteigender Sieges-Ruf + Schluss-Akzent.
-FANFARE = ("100k:d=8,o=5,b=140:g,c6,e6,g6,e6,g6,4c7,"
+FANFARE = ("150k:d=8,o=5,b=140:g,c6,e6,g6,e6,g6,4c7,"
            "g6,c7,e7,4g7,16p,c7,c7,c7,2c7")
 
 GOLD = "#FFD700"
 
 # RU translit + EN + DE (Font kann kein Kyrillisch).
-_BLAST_TEXT = "100.000 !  SPASIBO - THANK YOU - DANKE  -  ANNA, WE DID IT TOGETHER"
-_PARTY_TEXT = "100.000 - SPASIBO - THANK YOU - DANKE - WE DID IT"
+_BLAST_TEXT = "150.000 !  SPASIBO - THANK YOU - DANKE  -  ANNA, WE DID IT TOGETHER"
+_PARTY_TEXT = "150.000 - SPASIBO - THANK YOU - DANKE - WE DID IT"
 
 
 def _now():
@@ -61,7 +62,7 @@ def _fire_blast():
             "hold": False,
             "stack": True,
         })
-    log.info("100k-Blast %dx gefeuert", REPEAT)
+    log.info("150k-Blast %dx gefeuert", REPEAT)
 
 
 def _party_app():

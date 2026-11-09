@@ -20,7 +20,6 @@ import config
 import crypto
 import instagram
 import milestone
-import smallcap
 import sources
 import stocks
 import weather
@@ -30,7 +29,7 @@ DAY_BRI = 30    # Tag-Helligkeit (fix, kein Sensor-Nachregeln)
 NIGHT_BRI = 1   # Nacht-Helligkeit ab 20:30 (Owner-Wunsch), niedrigste Stufe
 _NIGHT_START_MIN = 20 * 60 + 30  # 20:30 Wien -> dimmen
 _NIGHT_END_MIN = 6 * 60          # 06:00 Wien -> wieder Tag
-GOAL_FOLLOWERS = 100_000         # Follower-Ziel fuer das Prognose-Feld
+GOAL_FOLLOWERS = 150_000         # Follower-Ziel fuer das Prognose-Feld (+150k-Feier)
 
 
 def setup_logging():
@@ -97,7 +96,7 @@ def main():
     _apply_brightness(log)
     apps = {}
     follower_delta = None  # fuer den +100-Follower-Ton nach dem Push
-    followers_now = None   # fuer die 100k-Feier
+    followers_now = None   # fuer die 150k-Feier
 
     # --- Instagram: Follower(+Zuwachs) & Reach(+Vortagsvergleich), je EIN Feld ---
     try:
@@ -121,11 +120,11 @@ def main():
             frags.append(frag)
         apps["igreach"] = awtrix.build_combo_app(frags, icon="ig")
 
-        # Ziel 100k: fehlende Follower (lime) + Prognose-Datum (gruen).
+        # Ziel 150k: fehlende Follower (lime) + Prognose-Datum (gruen).
         # Datum = heute + fehlend / Schnitt-Zuwachs der letzten 15 Tage.
         missing = GOAL_FOLLOWERS - followers
         if missing > 0:
-            gfrags = [(f"100k -{awtrix.format_number(missing)}", awtrix.HOME_LIME)]
+            gfrags = [(f"{GOAL_FOLLOWERS // 1000}k -{awtrix.format_number(missing)}", awtrix.HOME_LIME)]
             avg = instagram.get_follower_avg_per_day(15)
             if avg and avg > 0:
                 eta = dt.date.today() + dt.timedelta(days=round(missing / avg))
@@ -138,7 +137,7 @@ def main():
     except (instagram.InstagramError, RuntimeError) as exc:
         log.error("Instagram-Abruf fehlgeschlagen: %s", exc)
 
-    # --- 100k-Follower-Feier (Blast beim Ueberschreiten, dann Party/Badge) ---
+    # --- 150k-Follower-Feier (Blast beim Ueberschreiten, dann Party) ---------
     try:
         milestone.handle(followers_now, apps)
     except Exception as exc:  # noqa: BLE001 -- Feier darf den Push nicht kippen
@@ -208,24 +207,10 @@ def main():
     else:
         awtrix.remove_app("stocks")  # keine Position mehr -> Feld aktiv weg (retain)
 
-    # --- SmallCap-Portfolio (TROLL+Buttcoin) in EUR, SEPARAT von Krypto+Aktien -
-    # Eigenes Feld, bewusst nicht mit BTC/SOL/PEPE vermischt.
-    scp = smallcap.get_portfolio()
-    if scp is not None:
-        scday_color = awtrix.GROWTH_GREEN if scp.day_pct >= 0 else awtrix.DROP_RED
-        scpl_color = awtrix.GROWTH_GREEN if scp.pl_pct >= 0 else awtrix.DROP_RED
-        scfrags = [
-            ("SmallCap ", awtrix.WHITE),
-            (f"{awtrix.format_number(scp.total)}{config.EUR_SIGN}", awtrix.HOME_LIME),
-            (f" {scp.day_pct:+.1f}%", scday_color),
-            (f" {scp.day_eur:+.0f}{config.EUR_SIGN}", scday_color),
-            (" / ", awtrix.WHITE),
-            (f"{scp.pl_eur:+.0f}{config.EUR_SIGN}", scpl_color),
-            (f" {scp.pl_pct:+.1f}%", scpl_color),
-        ]
-        apps["smallcap"] = awtrix.build_combo_app(scfrags, icon="smallcap")
-    else:
-        awtrix.remove_app("smallcap")
+    # --- SmallCap-Feld ABGESCHAFFT (TROLL+Buttcoin verkauft/entfernt) --------
+    # Die App war mit retain=true auf der Uhr -> einmal aktiv entfernen,
+    # sonst bliebe das alte Feld fuer immer im Loop haengen.
+    awtrix.remove_app("smallcap")
 
     # --- Aussentemperatur (Kirchstetterngasse 7, 1160 Wien) -----------------
     temp = weather.get_temperature()
@@ -272,18 +257,14 @@ def main():
     else:
         awtrix.remove_app("lastpost")
 
-    # --- Gesamt-Profit: Krypto + SmallCap zusammen, als LETZTE Zeile im Loop -
-    # Owner-Wunsch: eine konsolidierte "seit Kauf"-Gewinnzeile ueber alle
-    # Portfolios (Aktien zaehlt nicht mehr mit -- Position komplett verkauft).
+    # --- Gesamt-Profit: nur noch Krypto (BTC/SOL/PEPE), LETZTE Zeile im Loop -
+    # Owner-Wunsch: eine konsolidierte "seit Kauf"-Gewinnzeile. Aktien und
+    # SmallCap zaehlen nicht mehr mit -- Positionen komplett verkauft/entfernt.
     profit_eur = profit_cost = 0.0
     profit_known = False
     if port is not None and port.pl_eur is not None:
         profit_eur += port.pl_eur
         profit_cost += port.cost
-        profit_known = True
-    if scp is not None:
-        profit_eur += scp.pl_eur
-        profit_cost += scp.cost
         profit_known = True
     if profit_known and profit_cost > 0:
         profit_pct = profit_eur / profit_cost * 100
